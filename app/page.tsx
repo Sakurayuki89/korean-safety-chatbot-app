@@ -1,103 +1,55 @@
-import Image from "next/image";
+import NoticeBoard from '@/components/NoticeBoard';
+import ChatWidget from '@/components/ChatWidget'; // Import the new component
 
-export default function Home() {
+// 예시 데이터 from NoticeBoard.example.tsx
+const sampleNotices = [
+  {
+    id: 1,
+    title: "시설 점검으로 인한 일시 출입 제한 안내",
+    category: "안전공지",
+    priority: "urgent" as const,
+    date: "2024.01.10",
+    content: "2024년 1월 15일 오전 2시부터 6시까지 시설 점검이 진행됩니다. 해당 시간대에는 출입이 제한되오니 양해 부탁드립니다. 긴급상황 시 비상연락처(02-1234-5678)로 연락주시기 바랍니다."
+  },
+  {
+    id: 2,
+    title: "새로운 안전장비 착용 의무화",
+    category: "안전규정",
+    priority: "important" as const,
+    date: "2024.01.09",
+    content: "2024년 1월 20일부터 새로운 안전장비 착용이 의무화됩니다. 모든 직원은 반드시 지급받은 안전장비를 착용하고 작업에 임해주시기 바랍니다."
+  },
+  {
+    id: 3,
+    title: "2024년 신년회 개최 안내",
+    category: "사내공지",
+    priority: "normal" as const,
+    date: "2024.01.08",
+    content: "2024년 신년회가 1월 25일 오후 6시에 회사 대강당에서 열립니다. 많은 참여 부탁드리며, 참석 여부는 1월 20일까지 인사팀에 전달해 주시기 바랍니다."
+  },
+  {
+    id: 4,
+    title: "임금협상 결과 및 단체협약 체결 안내",
+    category: "노조소식",
+    priority: "important" as const,
+    date: "2024.01.07",
+    content: "2024년 임금협상이 완료되어 새로운 단체협약이 체결되었습니다. 주요 내용은 기본급 3% 인상, 복리후생 개선 등이며, 자세한 사항은 노조 게시판을 참고해 주시기 바랍니다."
+  },
+  {
+    id: 5,
+    title: "화재예방을 위한 정기점검 실시",
+    category: "안전공지",
+    priority: "normal" as const,
+    date: "2024.01.06",
+    content: "매월 첫째 주 화요일마다 화재예방을 위한 정기점검을 실시합니다. 점검 시간은 오전 9시부터 11시까지이며, 해당 시간에는 소음이 발생할 수 있습니다."
+  }
+];
+
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    <main>
+      <NoticeBoard notices={sampleNotices} />
+      <ChatWidget />
+    </main>
   );
 }
