@@ -23,7 +23,13 @@ const ChatContainer = () => {
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    console.log('Attempting to scroll to bottom, ref exists:', !!messagesEndRef.current);
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      console.log('Scroll command executed');
+    } else {
+      console.log('messagesEndRef.current is null');
+    }
   };
 
   useEffect(() => {
@@ -35,51 +41,44 @@ const ChatContainer = () => {
     return () => clearTimeout(timeoutId);
   }, [messages]);
 
-  // On initial load, try to get session ID from localStorage
+  // On initial load, get session ID and fetch history
   useEffect(() => {
-    const storedSessionId = localStorage.getItem('chatSessionId');
-    if (storedSessionId) {
-      console.log('Found stored session ID:', storedSessionId);
-      setSessionId(storedSessionId);
-    } else {
-      console.log('No stored session ID found, starting fresh');
-      setMessages([]);
-    }
-  }, []);
-
-  // Fetch history when session ID is available
-  useEffect(() => {
-    const fetchHistory = async () => {
-      if (!sessionId) {
-        console.log('No session ID available for history fetch');
-        return;
-      }
-
-      console.log('Fetching history for session ID:', sessionId);
-      try {
-        const response = await fetch(`/api/history?sessionId=${sessionId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch chat history');
-        }
-        const history: HistoryMessage[] = await response.json();
-        console.log('Fetched history:', history.length, 'messages');
+    const initializeChat = async () => {
+      const storedSessionId = localStorage.getItem('chatSessionId');
+      if (storedSessionId) {
+        console.log('Found stored session ID:', storedSessionId);
+        setSessionId(storedSessionId);
         
-        const formattedMessages: Message[] = history.map(item => ({
-          id: item._id,
-          text: item.content,
-          sender: item.role === 'assistant' ? 'bot' : 'user',
-        }));
+        // Fetch history immediately
+        try {
+          console.log('Fetching history for session ID:', storedSessionId);
+          const response = await fetch(`/api/history?sessionId=${storedSessionId}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch chat history');
+          }
+          const history: HistoryMessage[] = await response.json();
+          console.log('Fetched history:', history.length, 'messages');
+          
+          const formattedMessages: Message[] = history.map(item => ({
+            id: item._id,
+            text: item.content,
+            sender: item.role === 'assistant' ? 'bot' : 'user',
+          }));
 
-        console.log('Setting formatted messages:', formattedMessages);
-        setMessages(formattedMessages);
-      } catch (error) {
-        console.error('Error fetching history:', error);
+          console.log('Setting formatted messages:', formattedMessages);
+          setMessages(formattedMessages);
+        } catch (error) {
+          console.error('Error fetching history:', error);
+          setMessages([]);
+        }
+      } else {
+        console.log('No stored session ID found, starting fresh');
         setMessages([]);
       }
     };
 
-    fetchHistory();
-  }, [sessionId]);
+    initializeChat();
+  }, []);
 
   const handleSendMessage = async (text: string) => {
     const userMessage: Message = {
@@ -155,8 +154,7 @@ const ChatContainer = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <MessageList messages={messages} />
-      <div ref={messagesEndRef} />
+      <MessageList messages={messages} ref={messagesEndRef} />
       <MessageInput onSendMessage={handleSendMessage} />
     </div>
   );
