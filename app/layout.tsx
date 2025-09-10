@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "./NoticeBoard.css"; // 스타일시트 추가
+import "../styles/NoticeBoard.css"; // 스타일시트 추가
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

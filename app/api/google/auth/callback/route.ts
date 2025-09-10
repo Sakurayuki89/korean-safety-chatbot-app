@@ -1,0 +1,56 @@
+/**
+ * @file app/api/google/auth/callback/route.ts
+ * @description API route to handle the OAuth 2.0 callback from Google.
+ *
+ * This route exchanges the authorization code for access and refresh tokens,
+ * then securely stores them in an HTTP-only cookie.
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getOAuth2Client } from '@/lib/google-drive';
+import { cookies } from 'next/headers';
+
+export const dynamic = 'force-dynamic'; // Force dynamic rendering
+
+const OAUTH_STATE_COOKIE = 'google_oauth_state';
+const GOOGLE_TOKEN_COOKIE = 'google_token';
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const code = searchParams.get('code');
+  const state = searchParams.get('state');
+  const cookieStore = await cookies();
+  const storedState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
+
+  if (!code) {
+    return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
+  }
+
+  // --- CSRF Protection ---
+  if (!state || !storedState || state !== storedState) {
+    return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
+  }
+
+  try {
+    const oauth2Client = getOAuth2Client();
+    const { tokens } = await oauth2Client.getToken(code);
+
+    // --- Store Tokens in Secure Cookie ---
+    cookieStore.set(GOOGLE_TOKEN_COOKIE, JSON.stringify(tokens), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: '/',
+    });
+
+    // Clear the state cookie now that it has been used
+    cookieStore.delete(OAUTH_STATE_COOKIE);
+
+    // Redirect user back to the main page or a dashboard
+    return NextResponse.redirect(new URL('/', req.url));
+
+  } catch (error: any) {
+    console.error('Error exchanging token:', error.response?.data || error.message);
+    return NextResponse.json({ error: 'Failed to exchange authorization code for tokens' }, { status: 500 });
+  }
+}

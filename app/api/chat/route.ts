@@ -3,13 +3,15 @@ import clientPromise from '../../../lib/mongodb';
 import genAI from '@/lib/gemini';
 import { KOREAN_PERSONA } from '@/lib/prompts';
 import { randomUUID } from 'crypto';
+import { generateContextPrompt, ContextInfo } from '@/lib/context-manager';
 
 export async function POST(req: NextRequest) {
   try {
-    // --- Get Form Data & Session ID ---
-    const formData = await req.formData();
-    const message = formData.get('message') as string;
-    const sessionIdFromClient = formData.get('sessionId') as string | null;
+    // --- Get JSON Body & Session ID ---
+    const body = await req.json();
+    const message: string = body.message;
+    const contextInfo: ContextInfo | null = body.contextInfo;
+    const sessionIdFromClient: string | null = body.sessionId;
 
     const sessionId = sessionIdFromClient || randomUUID();
 
@@ -25,12 +27,17 @@ export async function POST(req: NextRequest) {
         { role: "model", parts: [{ text: "안녕하세요! 안전이예요 😊 안전 관련해서 궁금한 게 있으시면 언제든 물어보세요!" }] },
       ],
       generationConfig: {
-        maxOutputTokens: 1024, // Increased for potentially longer streaming responses
+        maxOutputTokens: 2048, // Increased for potentially longer and more detailed responses
       },
     });
 
+    // --- Generate Prompt with Context ---
+    const finalPrompt = contextInfo 
+      ? generateContextPrompt(message, contextInfo)
+      : message;
+
     // --- Get AI Stream Response ---
-    const result = await chat.sendMessageStream(message);
+    const result = await chat.sendMessageStream(finalPrompt);
 
     // --- Encode the stream for the client ---
     const stream = new ReadableStream({
@@ -45,7 +52,8 @@ export async function POST(req: NextRequest) {
           await db.collection("messages").insertOne({
             sessionId,
             role: 'user',
-            content: message,
+            content: message, // Store the original message, not the context-injected one
+            context: contextInfo, // Optionally store context for history
             createdAt: new Date(),
           });
           console.log("✅ User message saved to DB");
@@ -87,7 +95,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error("An error occurred:", error);
+    console.error("An error occurred in chat API:", error);
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
   }
 }
