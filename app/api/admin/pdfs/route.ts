@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
-
-const DB_NAME = 'korean-safety-chatbot';
-const COLLECTION_NAME = 'managed_pdfs';
+import { DB_NAME, COLLECTION_NAMES } from '@/lib/constants';
 
 // GET all managed PDFs
 export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db(DB_NAME);
-    const pdfs = await db.collection(COLLECTION_NAME).find({}).sort({ uploadDate: -1 }).toArray();
+    const pdfs = await db.collection(COLLECTION_NAMES.PDFS).find({}).sort({ uploadDate: -1 }).toArray();
     return NextResponse.json(pdfs);
   } catch (e) {
     console.error(e);
@@ -27,7 +25,7 @@ export async function POST(request: Request) {
 
     const client = await clientPromise;
     const db = client.db(DB_NAME);
-    const collection = db.collection(COLLECTION_NAME);
+    const collection = db.collection(COLLECTION_NAMES.PDFS);
 
     const newPdf = {
       id: `pdf-${Date.now()}`,
@@ -55,7 +53,7 @@ export async function DELETE(request: Request) {
 
     const client = await clientPromise;
     const db = client.db(DB_NAME);
-    const collection = db.collection(COLLECTION_NAME);
+    const collection = db.collection(COLLECTION_NAMES.PDFS);
 
     const result = await collection.deleteOne({ id: id });
 

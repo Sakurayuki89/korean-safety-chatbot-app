@@ -2,8 +2,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../../lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-const DB_NAME = 'korean-safety-chatbot';
+import { DB_NAME } from '../../../../lib/constants';
 
 export async function GET() {
   try {

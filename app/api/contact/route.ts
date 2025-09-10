@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../lib/mongodb';
-
-const DB_NAME = 'korean-safety-chatbot';
+import { DB_NAME } from '../../../lib/constants';
 
 export async function POST(request: Request) {
   try {
