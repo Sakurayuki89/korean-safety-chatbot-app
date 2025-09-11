@@ -235,6 +235,58 @@ POST /api/admin/pdfs
 - 기능: PDF 정보 등록 (모의 구현)
 ```
 
+#### 안전보건용품 관리 API
+```
+GET /api/safety-items
+- 응답: SafetyItem[]
+- 기능: 등록된 안전용품 목록 조회
+
+POST /api/item-requests
+- 요청: { userName: string, itemName: string, itemSize: string, itemId: string }
+- 응답: { message: string }
+- 기능: 안전용품 신청 접수
+```
+
+#### 이미지 프록시 API
+```
+GET /api/image-proxy?fileId={googleDriveFileId}
+- 매개변수: fileId (Google Drive 파일 ID)
+- 응답: Image Binary Data
+- 기능: Google Drive 이미지 CORS 우회 프록시
+- 특징:
+  • 6가지 Google Drive URL 형식 자동 시도
+  • 캐시 헤더 (1시간) 성능 최적화
+  • CORS 헤더 설정으로 브라우저 호환성 확보
+  • Content-Type 자동 감지 및 전달
+
+GET /api/check-file-permissions?fileId={googleDriveFileId}
+- 매개변수: fileId (Google Drive 파일 ID)
+- 응답: FilePermission 객체
+- 기능: Google Drive 파일 권한 및 메타데이터 조회
+
+GET /api/test-image-url?url={googleDriveUrl}
+- 매개변수: url (Google Drive URL)
+- 응답: { success: boolean, contentType?: string, error?: string }
+- 기능: 이미지 URL 접근 가능성 테스트
+```
+
+#### Google Drive 통합 API
+```
+GET /api/google/auth/url
+- 응답: { authUrl: string }
+- 기능: Google OAuth 인증 URL 생성
+
+GET /api/google/auth/callback?code={authCode}
+- 매개변수: code (OAuth 인증 코드)
+- 응답: { success: boolean, message: string }
+- 기능: OAuth 콜백 처리 및 토큰 교환
+
+POST /api/google/upload
+- 요청: FormData (파일 업로드)
+- 응답: { fileId: string, publicUrl: string }
+- 기능: Google Drive에 파일 업로드 및 공개 설정
+```
+
 ---
 
 ## 🔒 보안 아키텍처

@@ -295,7 +295,112 @@ db.announcements.createIndex({
 
 ## 🎨 Frontend 문제 해결
 
-### 1. React 컴포넌트 오류
+### 1. 이미지 표시 문제
+
+#### Google Drive 이미지 CORS 오류
+```yaml
+증상: "안전보건용품 신청" 모달에서 이미지가 표시되지 않음
+오류: "CORS policy: No 'Access-Control-Allow-Origin' header is present"
+
+해결책: 이미지 프록시 API 사용
+  ✅ /api/image-proxy 엔드포인트로 Google Drive 이미지 우회
+  ✅ 6가지 Google Drive URL 형식 자동 처리
+  ✅ 캐시 헤더로 성능 최적화
+```
+
+```typescript
+// components/SafetyItemRequest.tsx - URL 변환 로직
+const convertGoogleDriveUrl = (url: string) => {
+  if (url.includes('drive.google.com')) {
+    let fileId = null;
+    
+    // Format 1: https://drive.google.com/file/d/FILE_ID/view
+    const fileIdMatch1 = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (fileIdMatch1) {
+      fileId = fileIdMatch1[1];
+    }
+    
+    // Format 2: https://drive.google.com/uc?id=FILE_ID
+    const fileIdMatch2 = url.match(/[?&]id=([a-zA-Z0-9-_]+)/);
+    if (fileIdMatch2) {
+      fileId = fileIdMatch2[1];
+    }
+    
+    if (fileId) {
+      console.log(`Converting: ${url} -> /api/image-proxy?fileId=${fileId}`);
+      return `/api/image-proxy?fileId=${fileId}`;
+    }
+  }
+  return url;
+};
+```
+
+```typescript
+// app/api/image-proxy/route.ts - 프록시 서버 구현
+export async function GET(req: NextRequest) {
+  const fileId = new URL(req.url).searchParams.get('fileId');
+  
+  // 6가지 URL 형식 시도
+  const urlsToTry = [
+    `https://drive.google.com/uc?id=${fileId}&export=view`,
+    `https://lh3.googleusercontent.com/d/${fileId}`,
+    `https://drive.google.com/uc?id=${fileId}`,
+    `https://drive.google.com/uc?id=${fileId}&export=download`,
+    `https://drive.google.com/thumbnail?id=${fileId}`,
+    `https://lh3.googleusercontent.com/d/${fileId}=w1000-h1000`,
+  ];
+
+  for (const imageUrl of urlsToTry) {
+    try {
+      const response = await fetch(imageUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; ImageBot/1.0)',
+          'Accept': 'image/*,*/*;q=0.8',
+          'Referer': 'https://drive.google.com',
+        },
+      });
+      
+      if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
+        const imageBuffer = await response.arrayBuffer();
+        
+        return new NextResponse(imageBuffer, {
+          headers: {
+            'Content-Type': response.headers.get('content-type')!,
+            'Cache-Control': 'public, max-age=3600',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      }
+    } catch (error) {
+      console.log(`Failed URL: ${imageUrl}`);
+    }
+  }
+  
+  return NextResponse.json({ error: 'Image not found' }, { status: 404 });
+}
+```
+
+#### 이미지 로드 디버깅 방법
+```bash
+# 1. 브라우저 개발자 도구에서 Network 탭 확인
+# 2. 이미지 요청 상태 및 응답 헤더 검사
+
+# 3. 직접 프록시 URL 테스트
+curl -I "http://localhost:3000/api/image-proxy?fileId=FILE_ID"
+
+# 4. 컴포넌트에서 로드 상태 추적
+onLoad={() => console.log('Image loaded successfully')}
+onError={() => console.log('Image failed to load')}
+```
+
+#### 해결 과정 요약
+1. **문제 식별**: CORS 정책으로 인한 Google Drive 직접 접근 차단
+2. **프록시 구현**: `/api/image-proxy` 엔드포인트 생성
+3. **URL 변환**: `convertGoogleDriveUrl` 함수로 자동 변환
+4. **폴백 전략**: 6가지 URL 형식으로 안정성 확보
+5. **성능 최적화**: 캐시 헤더 및 CORS 헤더 설정
+
+### 2. React 컴포넌트 오류
 
 #### Hydration Mismatch
 ```jsx
