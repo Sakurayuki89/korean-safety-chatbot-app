@@ -27,7 +27,7 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI) {
  * Scopes define the level of access the application is requesting.
  */
 const SCOPES = [
-  'https://www.googleapis.com/auth/drive.readonly',
+  'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/drive.file',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile',
@@ -144,6 +144,18 @@ export const getPublicUrl = async (accessToken: string, fileId: string): Promise
   try {
     console.log(`[getPublicUrl] Making file ${fileId} publicly readable...`);
     
+    // First check if file exists and we have access
+    try {
+      const fileInfo = await drive.files.get({
+        fileId: fileId,
+        fields: 'id, name, permissions'
+      });
+      console.log(`[getPublicUrl] File exists:`, fileInfo.data.name);
+    } catch (fileError) {
+      console.error(`[getPublicUrl] Cannot access file:`, fileError);
+      throw fileError;
+    }
+    
     // Make the file publicly readable
     const permissionResult = await drive.permissions.create({
       fileId: fileId,
@@ -151,12 +163,16 @@ export const getPublicUrl = async (accessToken: string, fileId: string): Promise
         role: 'reader',
         type: 'anyone',
       },
+      supportsAllDrives: true,
     });
     
     console.log(`[getPublicUrl] Permission created:`, permissionResult.data);
 
-    // Return direct download URL instead of webViewLink
-    const directUrl = `https://drive.google.com/uc?id=${fileId}`;
+    // Wait a moment for permission to propagate
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Return direct download URL
+    const directUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
     console.log(`[getPublicUrl] Generated direct URL: ${directUrl}`);
     
     return directUrl;
@@ -164,8 +180,8 @@ export const getPublicUrl = async (accessToken: string, fileId: string): Promise
   } catch (error) {
     console.error('[getPublicUrl] Error making file public:', error);
     
-    // If permission setting fails, still try to return the direct URL
-    console.log(`[getPublicUrl] Fallback: returning direct URL anyway`);
+    // Try alternative URL format
+    console.log(`[getPublicUrl] Fallback: trying alternative URL format`);
     return `https://drive.google.com/uc?id=${fileId}`;
   }
 };

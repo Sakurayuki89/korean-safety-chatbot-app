@@ -10,8 +10,16 @@ interface SafetyItem {
   createdAt: string;
 }
 
+interface ImageStatus {
+  [key: string]: {
+    googleImages: 'loading' | 'success' | 'failed';
+    proxy: 'loading' | 'success' | 'failed';
+  };
+}
+
 export default function DebugImagesPage() {
   const [items, setItems] = useState<SafetyItem[]>([]);
+  const [imageStatus, setImageStatus] = useState<ImageStatus>({});
 
   useEffect(() => {
     async function fetchItems() {
@@ -36,6 +44,8 @@ export default function DebugImagesPage() {
       original: originalUrl,
       directDownload: `https://drive.google.com/uc?id=${fileId}`,
       thumbnail: `https://drive.google.com/thumbnail?id=${fileId}`,
+      googleImages: `https://lh3.googleusercontent.com/d/${fileId}`,
+      proxy: `/api/image-proxy?fileId=${fileId}`,
       fileId: fileId
     };
   };
@@ -63,6 +73,14 @@ export default function DebugImagesPage() {
                   <span className="break-all">{urls.directDownload}</span>
                 </p>
                 <p className="text-sm text-gray-300 mb-2">
+                  <strong>Google Images:</strong><br/>
+                  <span className="break-all">{urls.googleImages}</span>
+                </p>
+                <p className="text-sm text-gray-300 mb-2">
+                  <strong>Proxy URL:</strong><br/>
+                  <span className="break-all">{urls.proxy}</span>
+                </p>
+                <p className="text-sm text-gray-300 mb-2">
                   <strong>File ID:</strong> {urls.fileId}
                 </p>
                 <p className="text-sm text-gray-300 mb-2">
@@ -74,37 +92,69 @@ export default function DebugImagesPage() {
                 <h3 className="font-semibold mb-2">이미지 테스트:</h3>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm mb-1">Original URL:</p>
-                    <img 
-                      src={urls.original} 
-                      alt="Original"
-                      className="w-32 h-32 object-contain bg-gray-700 rounded"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling!.textContent = '❌ Failed';
-                      }}
-                      onLoad={(e) => {
-                        e.currentTarget.nextElementSibling!.textContent = '✅ Success';
-                      }}
-                    />
-                    <p className="text-sm">Loading...</p>
+                    <p className="text-sm mb-1">Google Images URL:</p>
+                    <div className="border border-gray-600 rounded p-2">
+                      <img 
+                        src={urls.googleImages} 
+                        alt="Google Images"
+                        className="w-32 h-32 object-contain bg-gray-700 rounded mb-2"
+                        onError={() => {
+                          setImageStatus(prev => ({
+                            ...prev,
+                            [item._id]: { ...prev[item._id], googleImages: 'failed' }
+                          }));
+                        }}
+                        onLoad={() => {
+                          setImageStatus(prev => ({
+                            ...prev,
+                            [item._id]: { ...prev[item._id], googleImages: 'success' }
+                          }));
+                        }}
+                      />
+                      <p className="text-sm">
+                        {imageStatus[item._id]?.googleImages === 'success' && '✅ Success'}
+                        {imageStatus[item._id]?.googleImages === 'failed' && '❌ Failed'}
+                        {(!imageStatus[item._id]?.googleImages || imageStatus[item._id]?.googleImages === 'loading') && '⏳ Loading...'}
+                      </p>
+                    </div>
                   </div>
                   
                   <div>
-                    <p className="text-sm mb-1">Direct Download URL:</p>
-                    <img 
-                      src={urls.directDownload} 
-                      alt="Direct"
-                      className="w-32 h-32 object-contain bg-gray-700 rounded"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling!.textContent = '❌ Failed';
-                      }}
-                      onLoad={(e) => {
-                        e.currentTarget.nextElementSibling!.textContent = '✅ Success';
-                      }}
-                    />
-                    <p className="text-sm">Loading...</p>
+                    <p className="text-sm mb-1">Proxy URL (CORS-free):</p>
+                    <div className="border border-gray-600 rounded p-2">
+                      <img 
+                        src={urls.proxy} 
+                        alt="Proxy"
+                        className="w-32 h-32 object-contain bg-gray-700 rounded mb-2"
+                        onError={() => {
+                          setImageStatus(prev => ({
+                            ...prev,
+                            [item._id]: { ...prev[item._id], proxy: 'failed' }
+                          }));
+                        }}
+                        onLoad={() => {
+                          setImageStatus(prev => ({
+                            ...prev,
+                            [item._id]: { ...prev[item._id], proxy: 'success' }
+                          }));
+                        }}
+                      />
+                      <p className="text-sm">
+                        {imageStatus[item._id]?.proxy === 'success' && '✅ Success'}
+                        {imageStatus[item._id]?.proxy === 'failed' && '❌ Failed'}
+                        {(!imageStatus[item._id]?.proxy || imageStatus[item._id]?.proxy === 'loading') && '⏳ Loading...'}
+                      </p>
+                      <div className="mt-2">
+                        <a 
+                          href={urls.proxy} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 text-xs underline"
+                        >
+                          새 탭에서 열기
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

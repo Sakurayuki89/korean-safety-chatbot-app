@@ -27,11 +27,13 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
         const res = await fetch('/api/safety-items');
         if (res.ok) {
           const data = await res.json();
+          console.log('Fetched items:', data);
           setItems(data);
         } else {
           setMessage('안전용품 목록을 불러오는데 실패했습니다.');
         }
       } catch (error) {
+        console.error('Fetch error:', error);
         setMessage('오류가 발생했습니다.');
       }
     }
@@ -82,11 +84,26 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
   };
 
   const convertGoogleDriveUrl = (url: string) => {
-    // Convert Google Drive share URL to direct image URL
+    // Convert Google Drive URL to use our image proxy
     if (url.includes('drive.google.com')) {
-      const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-      if (fileIdMatch) {
-        return `https://drive.google.com/uc?id=${fileIdMatch[1]}`;
+      // Handle different Google Drive URL formats
+      let fileId = null;
+      
+      // Format 1: https://drive.google.com/file/d/FILE_ID/view
+      const fileIdMatch1 = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (fileIdMatch1) {
+        fileId = fileIdMatch1[1];
+      }
+      
+      // Format 2: https://drive.google.com/uc?id=FILE_ID
+      const fileIdMatch2 = url.match(/[?&]id=([a-zA-Z0-9-_]+)/);
+      if (fileIdMatch2) {
+        fileId = fileIdMatch2[1];
+      }
+      
+      if (fileId) {
+        console.log(`Converting Google Drive URL: ${url} -> /api/image-proxy?fileId=${fileId}`);
+        return `/api/image-proxy?fileId=${fileId}`;
       }
     }
     return url;
@@ -120,8 +137,11 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
                   src={convertGoogleDriveUrl(item.imageUrl)} 
                   alt={item.description} 
                   className="w-full h-48 object-contain rounded-md mb-4" 
-                  onError={() => handleImageError(item._id)}
-                  onLoad={() => console.log(`Image loaded: ${item.description}`)}
+                  onError={() => {
+                    console.log(`Image failed to load: ${item.description}, URL: ${convertGoogleDriveUrl(item.imageUrl)}`);
+                    handleImageError(item._id);
+                  }}
+                  onLoad={() => console.log(`Image loaded successfully: ${item.description}`)}
                 />
               )}
               <p className="text-center text-gray-700 font-semibold">{item.description}</p>
