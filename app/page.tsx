@@ -1,9 +1,14 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import NoticeBoard from '@/components/NoticeBoard';
 import ChatWidget from '@/components/ChatWidget';
+import SafetyItemRequest from '@/components/SafetyItemRequest';
 
 export default function HomePage() {
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -11,16 +16,29 @@ export default function HomePage() {
         <NoticeBoard />
 
         <div className="mt-8 text-center">
-          <a href="/contact-admin" className="text-blue-400 hover:text-blue-300 underline">
+          <a href="/contact" className="text-blue-400 hover:text-blue-300 underline">
             관리자에게 문의하기
           </a>
         </div>
       </div>
 
-      {/* 플로팅 챗봇 위젯 */}
-      <div className="fixed bottom-8 right-8 z-50">
+      {/* 플로팅 위젯들 */}
+      <div className="fixed bottom-8 right-8 z-40">
         <ChatWidget />
       </div>
+
+      <div className="fixed bottom-8 left-8 z-40">
+        <button 
+          onClick={() => setIsRequestModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          aria-label="안전보건용품 신청"
+        >
+          <Image src="/safety.svg" alt="Safety Item Request" width={32} height={32} />
+        </button>
+      </div>
+
+      {/* 안전보건용품 신청 모달 */}
+      {isRequestModalOpen && <SafetyItemRequest onClose={() => setIsRequestModalOpen(false)} />}
     </main>
   );
 }

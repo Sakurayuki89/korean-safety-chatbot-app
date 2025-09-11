@@ -18,6 +18,8 @@ const NoticeBoard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -37,6 +39,7 @@ const NoticeBoard: React.FC = () => {
     };
 
     fetchAnnouncements();
+    setCurrentPage(1); // 검색 시 첫 페이지로 리셋
   }, [searchTerm]);
 
   const toggleExpanded = (noticeId: number) => {
@@ -88,8 +91,93 @@ const NoticeBoard: React.FC = () => {
     );
   };
 
+  // 페이징 로직
+  const getPaginatedData = (notices: Announcement[]) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return notices.slice(startIndex, endIndex);
+  };
+
   const importantNotices = announcements.filter(n => n.priority === 'important').sort((a, b) => b.id - a.id);
   const normalNotices = announcements.filter(n => n.priority === 'normal').sort((a, b) => b.id - a.id);
+  
+  // 전체 공지사항을 합치고 페이징 적용
+  const allNotices = [...importantNotices, ...normalNotices];
+  const totalPages = Math.ceil(allNotices.length / itemsPerPage);
+  const paginatedNotices = getPaginatedData(allNotices);
+  
+  // 페이지별로 중요/일반 공지사항 분류
+  const paginatedImportant = paginatedNotices.filter(n => n.priority === 'important');
+  const paginatedNormal = paginatedNotices.filter(n => n.priority === 'normal');
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // 페이지 변경 시 상단으로 스크롤
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 페이지네이션 컴포넌트
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button 
+          className="page-btn"
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        >
+          처음
+        </button>
+        <button 
+          className="page-btn"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          이전
+        </button>
+        
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            className={`page-btn ${number === currentPage ? 'active' : ''}`}
+            onClick={() => handlePageChange(number)}
+          >
+            {number}
+          </button>
+        ))}
+        
+        <button 
+          className="page-btn"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          다음
+        </button>
+        <button 
+          className="page-btn"
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          마지막
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="notice-board">
@@ -116,13 +204,6 @@ const NoticeBoard: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <div className="notification-badge">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"/>
-                <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21"/>
-              </svg>
-              {announcements.length > 0 && <span className="badge-count">{announcements.length}</span>}
-            </div>
           </div>
         </div>
       </header>
@@ -132,31 +213,47 @@ const NoticeBoard: React.FC = () => {
         {error && <p className="text-center text-red-500">오류: {error}</p>}
         {!loading && !error && (
           <>
-            {importantNotices.length > 0 && (
-              <section className="notice-section">
-                <div className="section-header">
-                  <h2>주요 공지사항</h2>
-                  <Link href="/contact" className="inquiry-button">문의사항 남기기</Link>
-                </div>
-                <div className="notice-list">
-                  {importantNotices.map(renderNoticeItem)}
-                </div>
-              </section>
-            )}
-
-            {normalNotices.length > 0 && (
-              <section className="notice-section">
-                <h2>일반 공지사항</h2>
-                <div className="notice-list">
-                  {normalNotices.map(renderNoticeItem)}
-                </div>
-              </section>
-            )}
-
-            {announcements.length === 0 && (
+            {announcements.length === 0 ? (
               <div className="empty-state">
                 <p>검색 결과가 없습니다.</p>
               </div>
+            ) : (
+              <>
+                {/* 페이지 정보 표시 */}
+                <div className="page-info">
+                  <p className="text-sm text-gray-600 mb-4">
+                    전체 {announcements.length}개 | {currentPage}/{totalPages} 페이지 
+                    {searchTerm && <span className="ml-2 text-blue-600">검색: "{searchTerm}"</span>}
+                  </p>
+                  <div className="section-header">
+                    <h2>공지사항</h2>
+                    <Link href="/contact" className="inquiry-button">문의사항 남기기</Link>
+                  </div>
+                </div>
+
+                {/* 중요 공지사항 (페이지네이션 적용) */}
+                {paginatedImportant.length > 0 && (
+                  <section className="notice-section">
+                    <h3 className="text-lg font-semibold mb-3 text-red-600">🔴 주요 공지사항</h3>
+                    <div className="notice-list">
+                      {paginatedImportant.map(renderNoticeItem)}
+                    </div>
+                  </section>
+                )}
+
+                {/* 일반 공지사항 (페이지네이션 적용) */}
+                {paginatedNormal.length > 0 && (
+                  <section className="notice-section">
+                    <h3 className="text-lg font-semibold mb-3 text-gray-700">📢 일반 공지사항</h3>
+                    <div className="notice-list">
+                      {paginatedNormal.map(renderNoticeItem)}
+                    </div>
+                  </section>
+                )}
+
+                {/* 페이지네이션 */}
+                {renderPagination()}
+              </>
             )}
           </>
         )}

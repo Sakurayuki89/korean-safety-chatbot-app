@@ -120,9 +120,9 @@ export const downloadFile = async (accessToken: string, fileId: string) => {
 };
 
 /**
- * Uploads a file to Google Drive.
+ * Uploads a file to a specified folder in Google Drive.
  */
-export const uploadFile = async (
+export const uploadFileToDrive = async (
   accessToken: string,
   fileMetadata: { name: string; parents?: string[] },
   media: { mimeType: string; body: any }
@@ -131,9 +131,43 @@ export const uploadFile = async (
   const response = await drive.files.create({
     requestBody: fileMetadata,
     media: media,
-    fields: 'id, name, mimeType, size, createdTime, modifiedTime',
+    fields: 'id',
   });
-  return response.data;
+  return response.data.id;
+};
+
+/**
+ * Sets file permissions to public and returns the direct download link.
+ */
+export const getPublicUrl = async (accessToken: string, fileId: string): Promise<string | null> => {
+  const drive = getDriveClient(accessToken);
+  try {
+    console.log(`[getPublicUrl] Making file ${fileId} publicly readable...`);
+    
+    // Make the file publicly readable
+    const permissionResult = await drive.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+    
+    console.log(`[getPublicUrl] Permission created:`, permissionResult.data);
+
+    // Return direct download URL instead of webViewLink
+    const directUrl = `https://drive.google.com/uc?id=${fileId}`;
+    console.log(`[getPublicUrl] Generated direct URL: ${directUrl}`);
+    
+    return directUrl;
+
+  } catch (error) {
+    console.error('[getPublicUrl] Error making file public:', error);
+    
+    // If permission setting fails, still try to return the direct URL
+    console.log(`[getPublicUrl] Fallback: returning direct URL anyway`);
+    return `https://drive.google.com/uc?id=${fileId}`;
+  }
 };
 
 // --- Utility and Error Handling ---

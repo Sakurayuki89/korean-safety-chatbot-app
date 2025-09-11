@@ -2,6 +2,8 @@
 
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import InquiryManager from '../../components/admin/InquiryManager';
+import SafetyItemManager from '../../components/admin/SafetyItemManager';
+import ItemRequestManager from '../../components/admin/ItemRequestManager';
 
 // --- Interfaces ---
 interface Announcement {
@@ -217,6 +219,10 @@ export default function AdminPage() {
         return <PdfManager />;
       case 'inquiries':
         return <InquiryManager />;
+      case 'safety-items':
+        return <SafetyItemManager />;
+      case 'item-requests':
+        return <ItemRequestManager />;
       default:
         return null;
     }
@@ -245,6 +251,18 @@ export default function AdminPage() {
             className={`${activeTab === 'inquiries' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
           >
             문의사항 관리
+          </button>
+          <button
+            onClick={() => setActiveTab('safety-items')}
+            className={`${activeTab === 'safety-items' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            안전보건용품 관리
+          </button>
+          <button
+            onClick={() => setActiveTab('item-requests')}
+            className={`${activeTab === 'item-requests' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            용품 신청 내역
           </button>
         </nav>
       </div>
