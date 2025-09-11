@@ -45,15 +45,16 @@ export async function GET(
       { responseType: 'stream' }
     );
 
-    return new NextResponse(fileResponse.data as any, {
+    return new NextResponse(fileResponse.data as unknown as ReadableStream, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="document.pdf"`,
       },
     });
 
-  } catch (error: any) {
-    console.error(`Failed to download file ${fileId}:`, error.message);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error(`Failed to download file ${fileId}:`, err.message);
     return NextResponse.json({ error: 'Failed to download file' }, { status: 500 });
   }
 }

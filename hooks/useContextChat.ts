@@ -85,8 +85,9 @@ export const useContextChat = (contextInfo: ContextInfo | null) => {
         ]);
       }
 
-    } catch (e: any) {
-      setState(prev => ({ ...prev, error: e }));
+    } catch (e: unknown) {
+      const error = e as Error;
+      setState(prev => ({ ...prev, error }));
     } finally {
       setState(prev => ({ ...prev, loading: false }));
     }

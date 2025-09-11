@@ -38,8 +38,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(filesData);
 
-  } catch (error: any) {
-    console.error('Failed to fetch files from Google Drive:', error.message);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('Failed to fetch files from Google Drive:', err.message);
     return NextResponse.json({ error: 'Failed to fetch files' }, { status: 500 });
   }
 }

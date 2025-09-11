@@ -37,7 +37,7 @@ const SplitLayout: React.FC<SplitLayoutProps> = ({ leftPanel, rightPanel, defaul
   }
 
   return (
-    // @ts-ignore - react-split-pane has type conflicts with React 19
+    // @ts-expect-error - react-split-pane has type conflicts with React 19
     <SplitPane split="vertical" defaultSize={`${defaultSplit}%`} minSize={300} maxSize={-300}>
       <div className="pane-content">{leftPanel}</div>
       <div className="pane-content">{rightPanel}</div>

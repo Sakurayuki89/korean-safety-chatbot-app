@@ -49,8 +49,9 @@ export async function GET(req: NextRequest) {
     // Redirect user back to the main page or a dashboard
     return NextResponse.redirect(new URL('/', req.url));
 
-  } catch (error: any) {
-    console.error('Error exchanging token:', error.response?.data || error.message);
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: unknown }; message?: string };
+    console.error('Error exchanging token:', err.response?.data || err.message || 'Unknown error');
     return NextResponse.json({ error: 'Failed to exchange authorization code for tokens' }, { status: 500 });
   }
 }

@@ -76,7 +76,7 @@ export const getTokens = async (code: string) => {
 /**
  * Creates an authenticated Google Drive API client.
  */
-const getDriveClient = (accessToken: string) => {
+export const getDriveClient = (accessToken: string) => {
   const oauth2Client = getOAuth2Client();
   oauth2Client.setCredentials({ access_token: accessToken });
   return google.drive({ version: 'v3', auth: oauth2Client });
@@ -130,7 +130,7 @@ export const downloadFile = async (accessToken: string, fileId: string) => {
 export const uploadFileToDrive = async (
   accessToken: string,
   fileMetadata: { name: string; parents?: string[] },
-  media: { mimeType: string; body: any }
+  media: { mimeType: string; body: NodeJS.ReadableStream | string }
 ) => {
   const drive = getDriveClient(accessToken);
   const response = await drive.files.create({
@@ -223,8 +223,9 @@ export const retryWithBackoff = async <T>(
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
-    } catch (error: any) {
-      if (i === maxRetries - 1 || ![429, 500, 502, 503, 504].includes(error.code)) {
+    } catch (error: unknown) {
+      const err = error as { code?: number };
+      if (i === maxRetries - 1 || !err.code || ![429, 500, 502, 503, 504].includes(err.code)) {
         throw error;
       }
       const delay = baseDelay * Math.pow(2, i) + Math.random() * 100;

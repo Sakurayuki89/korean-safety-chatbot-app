@@ -59,8 +59,9 @@ export const useGoogleDrive = () => {
       if (!res.ok) throw new Error('Failed to get authorization URL');
       const { authUrl } = await res.json();
       window.location.href = authUrl;
-    } catch (e: any) {
-      setError(e);
+    } catch (e: unknown) {
+      const error = e as Error;
+      setError(error);
     }
   }, []);
 
@@ -77,8 +78,9 @@ export const useGoogleDrive = () => {
       }
       const { files } = await res.json();
       setState(prev => ({ ...prev, files, loading: false, error: null }));
-    } catch (e: any) {
-      setError(e);
+    } catch (e: unknown) {
+      const error = e as Error;
+      setError(error);
     }
   }, []);
 

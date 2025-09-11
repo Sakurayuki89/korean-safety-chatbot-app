@@ -76,7 +76,7 @@ export async function PUT(request: Request) {
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAME);
 
-    const updateData: any = { updatedAt: new Date() };
+    const updateData: { updatedAt: Date; title?: string; content?: string; priority?: string } = { updatedAt: new Date() };
     if (title) updateData.title = title;
     if (content) updateData.content = content;
     if (priority) updateData.priority = priority;

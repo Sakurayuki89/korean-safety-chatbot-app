@@ -124,7 +124,7 @@ const NoticeBoard: React.FC = () => {
     const maxVisiblePages = 5;
     
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
     
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -223,7 +223,7 @@ const NoticeBoard: React.FC = () => {
                 <div className="page-info">
                   <p className="text-sm text-gray-600 mb-4">
                     전체 {announcements.length}개 | {currentPage}/{totalPages} 페이지 
-                    {searchTerm && <span className="ml-2 text-blue-600">검색: "{searchTerm}"</span>}
+                    {searchTerm && <span className="ml-2 text-blue-600">검색: &quot;{searchTerm}&quot;</span>}
                   </p>
                   <div className="section-header">
                     <h2>공지사항</h2>

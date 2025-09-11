@@ -95,7 +95,7 @@ export default function SafetyItemManager() {
       const result = await response.json();
       
       if (response.ok) {
-        const successCount = result.results.filter((r: any) => r.status === 'success').length;
+        const successCount = result.results.filter((r: { status: string }) => r.status === 'success').length;
         setMessage(`권한 수정 완료: ${successCount}/${result.totalItems}개 파일 처리됨`);
       } else {
         setMessage(`권한 수정 실패: ${result.error}`);

@@ -22,13 +22,13 @@ const PDFViewerCore: React.FC<PDFViewerProps> = ({
   onLoadSuccess,
   onLoadError,
 }) => {
-  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pdfDoc, setPdfDoc] = useState<unknown>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [numPages, setNumPages] = useState<number>(0);
   const [zoom, setZoom] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pdfjsLibRef = useRef<any>(null);
+  const pdfjsLibRef = useRef<typeof import('pdfjs-dist') | null>(null);
 
   useEffect(() => {
     const loadPdfJs = async () => {
@@ -63,7 +63,8 @@ const PDFViewerCore: React.FC<PDFViewerProps> = ({
   useEffect(() => {
     if (!pdfDoc) return;
     const renderPage = async () => {
-      const page = await pdfDoc.getPage(currentPage);
+      const pdfDocument = pdfDoc as { getPage: (n: number) => Promise<{ getViewport: (options: { scale: number }) => { height: number; width: number }; render: (ctx: unknown) => { promise: Promise<void> } }> };
+      const page = await pdfDocument.getPage(currentPage);
       const viewport = page.getViewport({ scale: zoom });
       const canvas = canvasRef.current;
       if (!canvas) return;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { getDriveClient } from '@/lib/google-drive';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,8 +9,6 @@ const GOOGLE_TOKEN_COOKIE = 'google_token';
 
 // Helper function to get OAuth2 client with access token
 const getDriveClientWithToken = (accessToken: string) => {
-  const { google } = require('googleapis');
-  const { OAuth2Client } = require('google-auth-library');
   
   const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
