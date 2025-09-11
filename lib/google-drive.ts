@@ -13,6 +13,11 @@
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 
+// 폴더 관리 상수
+const SAFE_CHATBOT_FOLDER = 'safe-chatbot';
+const IMAGES_SUBFOLDER = 'images';
+const SHEETS_SUBFOLDER = 'sheets';
+
 // --- OAuth 2.0 Configuration ---
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -186,6 +191,25 @@ export const getPublicUrl = async (accessToken: string, fileId: string): Promise
   }
 };
 
+/**
+ * Deletes a file from Google Drive.
+ */
+export const deleteFileFromDrive = async (accessToken: string, fileId: string): Promise<void> => {
+  const drive = getDriveClient(accessToken);
+  try {
+    console.log(`[deleteFileFromDrive] Deleting file ${fileId} from Google Drive...`);
+    await drive.files.delete({
+      fileId: fileId,
+      supportsAllDrives: true,
+    });
+    console.log(`[deleteFileFromDrive] File ${fileId} deleted successfully.`);
+  } catch (error) {
+    console.error(`[deleteFileFromDrive] Error deleting file ${fileId}:`, error);
+    // It's possible the file is already deleted or permissions are wrong.
+    // We'll log the error but not throw, to allow DB deletion to proceed.
+  }
+};
+
 // --- Utility and Error Handling ---
 
 /**
@@ -208,4 +232,87 @@ export const retryWithBackoff = async <T>(
     }
   }
   throw new Error('Max retries exceeded');
+};
+
+// --- 폴더 관리 함수 ---
+
+/**
+ * Google Drive에서 폴더를 찾거나 생성하는 함수
+ */
+export const findOrCreateFolder = async (
+  accessToken: string,
+  folderName: string,
+  parentFolderId?: string
+): Promise<string> => {
+  const oauth2Client = new google.auth.OAuth2();
+  oauth2Client.setCredentials({ access_token: accessToken });
+  
+  const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
+  // 기존 폴더 검색
+  const searchQuery = parentFolderId 
+    ? `name='${folderName}' and parents in '${parentFolderId}' and mimeType='application/vnd.google-apps.folder' and trashed=false`
+    : `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+
+  try {
+    const existingFolders = await drive.files.list({
+      q: searchQuery,
+      fields: 'files(id, name)',
+      supportsAllDrives: true,
+    });
+
+    // 기존 폴더가 있으면 반환
+    if (existingFolders.data.files && existingFolders.data.files.length > 0) {
+      const folderId = existingFolders.data.files[0].id;
+      console.log(`[findOrCreateFolder] Found existing folder: ${folderName} (ID: ${folderId})`);
+      return folderId!;
+    }
+
+    // 폴더가 없으면 생성
+    const folderMetadata = {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: parentFolderId ? [parentFolderId] : undefined,
+    };
+
+    const createdFolder = await drive.files.create({
+      requestBody: folderMetadata,
+      fields: 'id',
+      supportsAllDrives: true,
+    });
+
+    const folderId = createdFolder.data.id;
+    console.log(`[findOrCreateFolder] Created new folder: ${folderName} (ID: ${folderId})`);
+    return folderId!;
+  } catch (error) {
+    console.error(`[findOrCreateFolder] Error with folder ${folderName}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * safe-chatbot 폴더 구조 생성/확인
+ */
+export const ensureSafeChatbotFolders = async (accessToken: string) => {
+  console.log('[ensureSafeChatbotFolders] Setting up folder structure...');
+  
+  // 1. 메인 safe-chatbot 폴더 생성/확인
+  const mainFolderId = await findOrCreateFolder(accessToken, SAFE_CHATBOT_FOLDER);
+  
+  // 2. images 서브폴더 생성/확인
+  const imagesFolderId = await findOrCreateFolder(accessToken, IMAGES_SUBFOLDER, mainFolderId);
+  
+  // 3. sheets 서브폴더 생성/확인
+  const sheetsFolderId = await findOrCreateFolder(accessToken, SHEETS_SUBFOLDER, mainFolderId);
+  
+  console.log(`[ensureSafeChatbotFolders] Folder structure ready:
+    - Main: ${mainFolderId}
+    - Images: ${imagesFolderId}
+    - Sheets: ${sheetsFolderId}`);
+  
+  return {
+    mainFolderId,
+    imagesFolderId,
+    sheetsFolderId,
+  };
 };

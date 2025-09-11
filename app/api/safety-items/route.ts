@@ -12,7 +12,7 @@ export async function GET() {
     
     console.log(`[GET /api/safety-items] Found ${items.length} items`);
     items.forEach(item => {
-      console.log(`[GET /api/safety-items] Item: ${item.description}, ImageURL: ${item.imageUrl?.substring(0, 50)}...`);
+      console.log(`[GET /api/safety-items] Item - name: "${item.name}", size: "${item.size}", description: "${item.description}"`);
     });
     
     return NextResponse.json(items);

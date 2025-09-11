@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
-import { uploadFileToDrive, getPublicUrl } from '@/lib/google-drive';
+import { uploadFileToDrive, getPublicUrl, deleteFileFromDrive, ensureSafeChatbotFolders } from '@/lib/google-drive';
 import clientPromise from '@/lib/mongodb';
 import { cookies } from 'next/headers';
+import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +62,8 @@ export async function POST(req: NextRequest) {
     // 2. Parse Form Data
     console.log('[POST /api/admin/safety-items] Step 2: Parsing form data.');
     const formData = await req.formData();
+    const name = formData.get('name') as string | null;
+    const size = formData.get('size') as string | null;
     const description = formData.get('description') as string;
     const imageFile = formData.get('image') as File | null;
     
@@ -90,16 +93,15 @@ export async function POST(req: NextRequest) {
       size: `${(imageFile.size / 1024 / 1024).toFixed(2)}MB`
     });
 
-    // 3. Upload image to Google Drive
-    console.log('[POST /api/admin/safety-items] Step 3: Preparing to upload to Google Drive.');
+    // 3. 폴더 구조 생성 및 이미지 업로드
+    console.log('[POST /api/admin/safety-items] Step 3: Setting up folder structure and uploading to Google Drive.');
     
-    // Check environment variables
-    const driveFolder = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    console.log('[POST /api/admin/safety-items] Drive folder ID:', driveFolder ? 'Set' : 'Not set');
+    // safe-chatbot 폴더 구조 생성/확인
+    const folderStructure = await ensureSafeChatbotFolders(access_token);
     
     const fileMetadata = {
       name: imageFile.name || 'safety-item-image.jpg',
-      parents: driveFolder ? [driveFolder] : [], // Don't set parents if folder ID is not configured
+      parents: [folderStructure.imagesFolderId], // safe-chatbot/images 폴더에 저장
     };
     const imageStream = await fileToStream(imageFile);
     const media = {
@@ -136,6 +138,8 @@ export async function POST(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
     const result = await db.collection('safety_items').insertOne({
+      name,
+      size,
       description,
       imageUrl: imageUrl, 
       googleFileId: fileId,
@@ -147,6 +151,58 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('[POST /api/admin/safety-items] CATCH BLOCK: An unexpected error occurred.', error);
+    if (error instanceof Error) {
+        return NextResponse.json({ error: `서버 내부 오류: ${error.message}` }, { status: 500 });
+    }
+    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  console.log('[DELETE /api/admin/safety-items] Received request.');
+  try {
+    // 1. Get Access Token
+    console.log('[DELETE /api/admin/safety-items] Step 1: Getting access token from cookie.');
+    const cookieStore = await cookies();
+    const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE)?.value;
+    if (!tokenCookie) {
+      console.error('[DELETE /api/admin/safety-items] Error: Google token cookie not found.');
+      return NextResponse.json({ error: '인증되지 않았습니다. 관리자 로그인이 필요합니다.' }, { status: 401 });
+    }
+    const { access_token } = JSON.parse(tokenCookie);
+    if (!access_token) {
+        console.error('[DELETE /api/admin/safety-items] Error: Access token not found in cookie.');
+        return NextResponse.json({ error: '유효하지 않은 인증 토큰입니다.' }, { status: 401 });
+    }
+    console.log('[DELETE /api/admin/safety-items] Step 1: Access token retrieved successfully.');
+
+    // 2. Parse Request Body
+    const { id, googleFileId } = await req.json();
+    if (!id || !googleFileId) {
+      return NextResponse.json({ error: 'Item ID and Google File ID are required' }, { status: 400 });
+    }
+
+    // 3. Delete from MongoDB
+    console.log(`[DELETE /api/admin/safety-items] Step 2: Deleting item from MongoDB. ID: ${id}`);
+    const client = await clientPromise;
+    const db = client.db();
+    const deleteResult = await db.collection('safety_items').deleteOne({ _id: new ObjectId(id) });
+
+    if (deleteResult.deletedCount === 0) {
+      console.warn(`[DELETE /api/admin/safety-items] Item with ID ${id} not found in DB.`);
+      // Proceed to delete from Drive anyway, in case DB entry was already removed
+    }
+    console.log(`[DELETE /api/admin/safety-items] Step 2: MongoDB deletion successful.`);
+
+    // 4. Delete from Google Drive
+    console.log(`[DELETE /api/admin/safety-items] Step 3: Deleting file from Google Drive. File ID: ${googleFileId}`);
+    await deleteFileFromDrive(access_token, googleFileId);
+    console.log(`[DELETE /api/admin/safety-items] Step 3: Google Drive deletion process completed.`);
+
+    return NextResponse.json({ success: true, message: 'Item deleted successfully' });
+
+  } catch (error) {
+    console.error('[DELETE /api/admin/safety-items] CATCH BLOCK: An unexpected error occurred.', error);
     if (error instanceof Error) {
         return NextResponse.json({ error: `서버 내부 오류: ${error.message}` }, { status: 500 });
     }

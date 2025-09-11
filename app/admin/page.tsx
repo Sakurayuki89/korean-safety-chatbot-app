@@ -111,13 +111,14 @@ const AnnouncementManager = () => {
   const [content, setContent] = useState('');
   const [priority, setPriority] = useState<'important' | 'normal'>('normal');
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchAnnouncements();
-  }, []);
+  }, [searchTerm]);
 
   const fetchAnnouncements = async () => {
-    const res = await fetch('/api/announcements');
+    const res = await fetch(`/api/announcements?search=${searchTerm}`);
     const data = await res.json();
     setAnnouncements(data);
   };
@@ -183,7 +184,16 @@ const AnnouncementManager = () => {
         </form>
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold mb-4">공지사항 목록</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">공지사항 목록</h2>
+          <input
+            type="text"
+            placeholder="검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-1/3 p-2 bg-gray-700 border border-gray-600 rounded-md"
+          />
+        </div>
         <div className="space-y-4">
           {announcements.sort((a, b) => b.id - a.id).map((ann) => (
             <div key={ann.id} className="p-4 bg-gray-700 rounded-md flex justify-between items-start">
