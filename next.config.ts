@@ -23,11 +23,12 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: [
       '@google/generative-ai',
-      'googleapis',
-      'mongodb'
-    ],
-    serverComponentsExternalPackages: ['mongodb'],
+      'googleapis'
+    ]
   },
+
+  // 서버 컴포넌트에서 외부 패키지로 처리할 목록
+  serverExternalPackages: ['mongodb'],
 
   // 보안 헤더 설정
   async headers() {
