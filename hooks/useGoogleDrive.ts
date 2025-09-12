@@ -16,41 +16,23 @@ interface GoogleDriveState {
   isAuthenticated: boolean;
 }
 
-// Checks for the presence of the Google token cookie.
-const checkAuthCookie = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  return document.cookie.includes('google_token=');
-};
-
-/**
- * A custom hook to manage Google Drive integration.
- */
-export const useGoogleDrive = () => {
-  const [state, setState] = useState<GoogleDriveState>({
-    files: [],
-    loading: false,
-    error: null,
-    isAuthenticated: false,
-  });
-
-  // Check authentication status when the hook is first mounted.
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const setLoading = (loading: boolean) => {
-    setState(prev => ({ ...prev, loading }));
-  };
-
-  const setError = (error: Error | null) => {
-    setState(prev => ({ ...prev, error, loading: false }));
-  };
-
-  const checkAuthStatus = useCallback(() => {
-    const authStatus = checkAuthCookie();
-    setState(prev => ({ ...prev, isAuthenticated: authStatus }));
-    return authStatus;
-  }, []);
+// Checks authentication status by calling the backend API.
+const checkAuthStatus = useCallback(async () => {
+  setState(prev => ({ ...prev, loading: true }));
+  try {
+    const res = await fetch('/api/google/auth/status');
+    if (!res.ok) {
+      throw new Error('Failed to check auth status');
+    }
+    const { isAuthenticated } = await res.json();
+    setState(prev => ({ ...prev, isAuthenticated, loading: false }));
+    return isAuthenticated;
+  } catch (error) {
+    console.error('checkAuthStatus error:', error);
+    setState(prev => ({ ...prev, isAuthenticated: false, loading: false }));
+    return false;
+  }
+}, []);
 
   const login = useCallback(async (returnPath?: string) => {
     setLoading(true);
