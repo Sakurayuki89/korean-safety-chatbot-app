@@ -56,6 +56,13 @@ const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
         <p><strong>Cookies:</strong> {typeof window !== 'undefined' ? (document.cookie || 'No cookies') : 'Loading...'}</p>
         <p><strong>Auth State:</strong> {JSON.stringify({ isAuthenticated, loading, hasError: !!error })}</p>
         <p><strong>Environment:</strong> {typeof window !== 'undefined' ? window.location.host : 'Loading...'}</p>
+        <div style={{ marginTop: '10px', padding: '10px', background: '#444', borderRadius: '3px' }}>
+          <h4>⚠️ Google Cloud Console 설정 확인 필요</h4>
+          <p>OAuth 2.0 클라이언트 설정의 "승인된 리디렉션 URI"에 다음을 추가하세요:</p>
+          <code style={{ display: 'block', margin: '5px 0', padding: '5px', background: '#555', fontSize: '10px' }}>
+            {typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/api/google/auth/callback` : 'Loading...'}
+          </code>
+        </div>
         <button 
           onClick={async () => {
             try {
