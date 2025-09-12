@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent, useRef } from 'react';
 import InquiryManager from '../../components/admin/InquiryManager';
 import SafetyItemManager from '../../components/admin/SafetyItemManager';
 import ItemRequestManager from '../../components/admin/ItemRequestManager';
+import DriveAuth from '../../components/drive/DriveAuth';
 
 // --- Interfaces ---
 interface Announcement {
@@ -115,7 +116,7 @@ const AnnouncementManager = () => {
 
   useEffect(() => {
     fetchAnnouncements();
-  }, [searchTerm]);
+  }, []);
 
   const fetchAnnouncements = async () => {
     const res = await fetch(`/api/announcements?search=${searchTerm}`);
@@ -219,6 +220,7 @@ const AnnouncementManager = () => {
 
 // --- Main Admin Page Component ---
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState('announcements');
 
   const renderTabContent = () => {
@@ -237,6 +239,10 @@ export default function AdminPage() {
         return null;
     }
   };
+
+  if (!isAuthenticated) {
+    return <DriveAuth onAuthSuccess={() => setIsAuthenticated(true)} />;
+  }
 
   return (
     <div className="container mx-auto p-8 bg-gray-900 text-white min-h-screen">
