@@ -26,7 +26,6 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-dropzone": "^14.2.3",
-    "react-split-pane": "^2.0.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
