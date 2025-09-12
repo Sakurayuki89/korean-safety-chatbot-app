@@ -18,10 +18,17 @@ interface DriveAuthProps {
 const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
   const { login, loading, error, isAuthenticated } = useGoogleDrive();
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[DriveAuth] State changed:', { isAuthenticated, loading, error });
+  }, [isAuthenticated, loading, error]);
+
   // This effect will be part of a more complete solution to check session status
   // and call onAuthSuccess when isAuthenticated becomes true.
   React.useEffect(() => {
+    console.log('[DriveAuth] isAuthenticated changed:', isAuthenticated);
     if (isAuthenticated) {
+      console.log('[DriveAuth] Calling onAuthSuccess');
       onAuthSuccess();
     }
   }, [isAuthenticated, onAuthSuccess]);
@@ -34,7 +41,10 @@ const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
     <div style={{ padding: '20px', textAlign: 'center' }}>
       <h2>Connect to Google Drive</h2>
       <p>Please log in to access your PDF files from Google Drive.</p>
-      <button onClick={() => login(window.location.pathname)} disabled={loading} style={{ marginTop: '10px', padding: '10px 20px' }}>
+      <button onClick={() => {
+        console.log('[DriveAuth] Login button clicked, current path:', window.location.pathname);
+        login(window.location.pathname);
+      }} disabled={loading} style={{ marginTop: '10px', padding: '10px 20px' }}>
         {loading ? 'Redirecting...' : 'Login with Google'}
       </button>
       {error && <p style={{ color: 'red', marginTop: '10px' }}>Error: {error.message}</p>}
