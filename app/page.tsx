@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import NoticeBoard from '@/components/NoticeBoard';
-import ChatWidget from '@/components/ChatWidget';
-import SafetyItemRequest from '@/components/SafetyItemRequest';
+
+// Dynamically import heavy components
+const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false });
+const SafetyItemRequest = dynamic(() => import('@/components/SafetyItemRequest'));
 
 export default function HomePage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
@@ -24,7 +27,9 @@ export default function HomePage() {
 
       {/* 플로팅 위젯들 */}
       <div className="fixed bottom-8 right-8 z-40">
-        <ChatWidget />
+        <Suspense fallback={<div className="w-16 h-16 bg-gray-700 rounded-full" />}>
+          <ChatWidget />
+        </Suspense>
       </div>
 
       <div className="fixed bottom-8 left-8 z-40">
@@ -33,12 +38,16 @@ export default function HomePage() {
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
           aria-label="안전보건용품 신청"
         >
-          <Image src="/safety.svg" alt="Safety Item Request" width={32} height={32} />
+          <Image src="/safety.svg" alt="Safety Item Request" width={32} height={32} priority />
         </button>
       </div>
 
       {/* 안전보건용품 신청 모달 */}
-      {isRequestModalOpen && <SafetyItemRequest onClose={() => setIsRequestModalOpen(false)} />}
+      {isRequestModalOpen && (
+        <Suspense fallback={null}>
+          <SafetyItemRequest onClose={() => setIsRequestModalOpen(false)} />
+        </Suspense>
+      )}
     </main>
   );
 }

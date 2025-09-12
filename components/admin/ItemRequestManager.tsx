@@ -69,25 +69,45 @@ export default function ItemRequestManager() {
     }
 
     setIsExporting(true);
-    setMessage('');
+    setMessage('파일 생성 중...');
 
     try {
       const response = await fetch('/api/admin/export-requests', {
         method: 'POST',
       });
 
-      const result = await response.json();
-
       if (response.ok) {
-        setMessage(`구글 시트가 성공적으로 생성되었습니다! (${result.requestCount}개 신청)`);
-        // 새 창에서 스프레드시트 열기
-        window.open(result.spreadsheetUrl, '_blank');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        
+        // 파일명 설정
+        const contentDisposition = response.headers.get('content-disposition');
+        let fileName = '안전용품_신청내역.xlsx';
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename="(.+?)"/);
+          if (fileNameMatch && fileNameMatch.length > 1) {
+            fileName = decodeURIComponent(fileNameMatch[1]);
+          }
+        }
+        a.download = fileName;
+        
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        setMessage(`'${fileName}' 파일 다운로드가 시작되었습니다.`);
       } else {
-        setMessage(result.error || '구글 시트 생성 중 오류가 발생했습니다.');
+        const errorResult = await response.json();
+        setMessage(errorResult.error || '파일 생성 중 오류가 발생했습니다.');
       }
     } catch (error) {
       console.error('Error exporting to sheets:', error);
-      setMessage('구글 시트 생성 중 네트워크 오류가 발생했습니다.');
+      setMessage('파일 다운로드 중 네트워크 오류가 발생했습니다.');
     } finally {
       setIsExporting(false);
     }
