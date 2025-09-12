@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
+import Image from 'next/image';
 import ImageModal from './ImageModal'; // Import the new component
 
 interface SafetyItem {
@@ -103,7 +104,7 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
       } else {
         setMessage(result.error || '신청 중 오류가 발생했습니다.');
       }
-    } catch (error) {
+    } catch {
       setMessage('네트워크 오류 또는 서버 문제 발생');
     } finally {
       setIsLoading(false);
@@ -186,20 +187,22 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
                     </div>
                   </div>
                 ) : (
-                  <img 
-                    src={convertGoogleDriveUrl(item.imageUrl)} 
-                    alt={item.description} 
-                    className="w-full h-48 object-contain rounded-md mb-4 cursor-pointer" 
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent selecting the item
-                      setModalImageUrl(convertGoogleDriveUrl(item.imageUrl));
-                    }}
-                    onError={() => {
-                      console.log(`Image failed to load: ${item.description}, URL: ${convertGoogleDriveUrl(item.imageUrl)}`);
-                      handleImageError(item._id);
-                    }}
-                    onLoad={() => console.log(`Image loaded successfully: ${item.description}`)}
-                  />
+                  <div className="relative w-full h-48 mb-4 cursor-pointer" onClick={(e) => {
+                    e.stopPropagation(); // Prevent selecting the item
+                    setModalImageUrl(convertGoogleDriveUrl(item.imageUrl));
+                  }}>
+                    <Image 
+                      src={convertGoogleDriveUrl(item.imageUrl)} 
+                      alt={item.description} 
+                      fill
+                      className="object-contain rounded-md" 
+                      onError={() => {
+                        console.log(`Image failed to load: ${item.description}, URL: ${convertGoogleDriveUrl(item.imageUrl)}`);
+                        handleImageError(item._id);
+                      }}
+                      onLoad={() => console.log(`Image loaded successfully: ${item.description}`)}
+                    />
+                  </div>
                 )}
                 <div className="text-center">
                   <p className="text-gray-800 font-bold">{item.name || item.description}</p>

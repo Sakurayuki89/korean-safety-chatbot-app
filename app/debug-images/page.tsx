@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface SafetyItem {
   _id: string;
@@ -94,23 +95,26 @@ export default function DebugImagesPage() {
                   <div>
                     <p className="text-sm mb-1">Google Images URL:</p>
                     <div className="border border-gray-600 rounded p-2">
-                      <img 
-                        src={urls.googleImages} 
-                        alt="Google Images"
-                        className="w-32 h-32 object-contain bg-gray-700 rounded mb-2"
-                        onError={() => {
-                          setImageStatus(prev => ({
-                            ...prev,
-                            [item._id]: { ...prev[item._id], googleImages: 'failed' }
-                          }));
-                        }}
-                        onLoad={() => {
-                          setImageStatus(prev => ({
-                            ...prev,
-                            [item._id]: { ...prev[item._id], googleImages: 'success' }
-                          }));
-                        }}
-                      />
+                      <div className="relative w-32 h-32 bg-gray-700 rounded mb-2">
+                        <Image 
+                          src={urls.googleImages} 
+                          alt="Google Images"
+                          fill
+                          className="object-contain rounded"
+                          onError={() => {
+                            setImageStatus(prev => ({
+                              ...prev,
+                              [item._id]: { ...prev[item._id], googleImages: 'failed' }
+                            }));
+                          }}
+                          onLoad={() => {
+                            setImageStatus(prev => ({
+                              ...prev,
+                              [item._id]: { ...prev[item._id], googleImages: 'success' }
+                            }));
+                          }}
+                        />
+                      </div>
                       <p className="text-sm">
                         {imageStatus[item._id]?.googleImages === 'success' && '✅ Success'}
                         {imageStatus[item._id]?.googleImages === 'failed' && '❌ Failed'}
@@ -122,23 +126,26 @@ export default function DebugImagesPage() {
                   <div>
                     <p className="text-sm mb-1">Proxy URL (CORS-free):</p>
                     <div className="border border-gray-600 rounded p-2">
-                      <img 
-                        src={urls.proxy} 
-                        alt="Proxy"
-                        className="w-32 h-32 object-contain bg-gray-700 rounded mb-2"
-                        onError={() => {
-                          setImageStatus(prev => ({
-                            ...prev,
-                            [item._id]: { ...prev[item._id], proxy: 'failed' }
-                          }));
-                        }}
-                        onLoad={() => {
-                          setImageStatus(prev => ({
-                            ...prev,
-                            [item._id]: { ...prev[item._id], proxy: 'success' }
-                          }));
-                        }}
-                      />
+                      <div className="relative w-32 h-32 bg-gray-700 rounded mb-2">
+                        <Image 
+                          src={urls.proxy} 
+                          alt="Proxy"
+                          fill
+                          className="object-contain rounded"
+                          onError={() => {
+                            setImageStatus(prev => ({
+                              ...prev,
+                              [item._id]: { ...prev[item._id], proxy: 'failed' }
+                            }));
+                          }}
+                          onLoad={() => {
+                            setImageStatus(prev => ({
+                              ...prev,
+                              [item._id]: { ...prev[item._id], proxy: 'success' }
+                            }));
+                          }}
+                        />
+                      </div>
                       <p className="text-sm">
                         {imageStatus[item._id]?.proxy === 'success' && '✅ Success'}
                         {imageStatus[item._id]?.proxy === 'failed' && '❌ Failed'}

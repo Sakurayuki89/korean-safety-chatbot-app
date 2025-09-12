@@ -29,7 +29,7 @@ export default function PasswordAuth({ onAuthSuccess }: PasswordAuthProps) {
         const data = await response.json();
         setError(data.error || '비밀번호가 올바르지 않습니다.');
       }
-    } catch (err) {
+    } catch {
       setError('로그인 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
     } finally {
       setIsLoading(false);

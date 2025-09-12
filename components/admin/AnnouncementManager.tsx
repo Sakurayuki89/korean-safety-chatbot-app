@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, useCallback, FormEvent } from 'react';
 
 interface Announcement {
   id: number;
@@ -18,15 +18,15 @@ const AnnouncementManager = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     const res = await fetch(`/api/announcements?search=${searchTerm}`);
     const data = await res.json();
     setAnnouncements(data);
-  };
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

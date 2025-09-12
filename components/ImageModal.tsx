@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 
 interface ImageModalProps {
   imageUrl: string;
@@ -28,10 +29,11 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
         className="relative max-w-full max-h-full"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
       >
-        <img
+        <Image
           src={imageUrl}
           alt="Enlarged view"
-          className="max-w-full max-h-full object-contain rounded-lg"
+          fill
+          className="object-contain rounded-lg"
         />
       </div>
 

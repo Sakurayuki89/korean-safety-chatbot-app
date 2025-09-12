@@ -13,7 +13,6 @@ export interface Message {
 }
 
 interface ChatContainerProps {
-  sessionId?: string;
   contextInfo: ContextInfo | null;
 }
 
@@ -24,7 +23,7 @@ const LoadingIndicator = () => (
   </div>
 );
 
-const ChatContainer: React.FC<ChatContainerProps> = ({ sessionId, contextInfo }) => {
+const ChatContainer: React.FC<ChatContainerProps> = ({ contextInfo }) => {
   const { messages: hookMessages, sendMessage, loading } = useContextChat(contextInfo);
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useEffect } from 'react';
+import Image from 'next/image';
 
 interface SafetyItem {
   _id: string;
@@ -59,7 +60,7 @@ export default function SafetyItemManager() {
         method: 'GET',
       });
       setIsAuthenticated(response.status !== 401);
-    } catch (error) {
+    } catch {
       setIsAuthenticated(false);
     }
   };
@@ -389,7 +390,9 @@ export default function SafetyItemManager() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedItems.map((item) => (
             <div key={item._id} className="bg-gray-700 rounded-lg shadow-lg overflow-hidden flex flex-col">
-              <img src={convertGoogleDriveUrl(item.imageUrl)} alt={item.description} className="w-full h-48 object-cover" />
+              <div className="relative w-full h-48">
+                <Image src={convertGoogleDriveUrl(item.imageUrl)} alt={item.description} fill className="object-cover" />
+              </div>
               <div className="p-4 flex flex-col flex-grow">
                 <h3 className="text-lg font-bold text-white">{item.name || 'N/A'}</h3>
                 {item.size && <p className="text-sm text-gray-400 mb-2">사이즈: {item.size}</p>}
