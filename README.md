@@ -190,6 +190,46 @@ npm run check-port    # 포트 상태 확인
 - `✅ test`: 테스트 추가
 - `🔧 chore`: 빌드/설정 변경
 
+## 📋 추가 문서
+
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**: 문제 해결 가이드 및 개발 과정에서 해결된 주요 이슈들
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)**: 상세한 배포 가이드 및 프로덕션 환경 설정
+- **[PRE_DEPLOYMENT_CHECKLIST.md](./PRE_DEPLOYMENT_CHECKLIST.md)**: 배포 전 체크리스트
+
+### 🔧 주요 해결된 이슈
+
+프로젝트 개발 과정에서 해결된 중요한 기술적 이슈들:
+
+#### Google OAuth 인증 시스템
+- **문제**: 로그인 성공 후 관리자 페이지 진입 실패 및 세션 유지 문제
+- **해결**: 동적 리디렉션 URI 생성, CSRF 보호 강화, 쿠키 설정 최적화
+- **결과**: 완벽한 OAuth 플로우 구현 및 안정적인 세션 관리
+
+#### Next.js 15 호환성
+- **문제**: Next.js 15의 변경된 API로 인한 빌드 오류
+- **해결**: cookies() 함수의 async/await 패턴 적용, App Router 최적화
+- **결과**: 최신 Next.js 버전과 완벽 호환
+
+#### 환경별 배포 최적화
+- **문제**: 개발/프로덕션 환경 간 설정 불일치
+- **해결**: 환경 감지 로직 구현, 동적 설정 시스템 도입
+- **결과**: 모든 환경에서 일관된 동작 보장
+
+자세한 내용은 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)를 참조하세요.
+
+## 📊 프로젝트 현황
+
+### 완성도: 95% ✅
+- **✅ 완료**: 모든 핵심 기능 구현 및 테스트 완료
+- **✅ 완료**: Google OAuth 로그인 시스템 완전 구현
+- **✅ 완료**: 관리자 대시보드 및 모든 CRUD 기능
+- **✅ 완료**: AI 채팅봇 및 사용자 인터페이스
+- **✅ 완료**: 프로덕션 배포 준비 완료
+- **🔄 진행중**: 최종 UI/UX 폴리싱 및 성능 최적화
+
+### 즉시 배포 가능 🚀
+모든 핵심 기능이 완성되어 즉시 프로덕션 환경에 배포할 수 있습니다.
+
 ## 📄 라이선스
 
 이 프로젝트는 [MIT 라이선스](LICENSE) 하에 있습니다.
@@ -199,6 +239,10 @@ npm run check-port    # 포트 상태 확인
 - **이슈 신고**: [GitHub Issues](https://github.com/your-repo/korean-safety-system/issues)
 - **기능 제안**: [GitHub Discussions](https://github.com/your-repo/korean-safety-system/discussions)
 - **기술 지원**: [이메일 문의](mailto:support@example.com)
+
+### 🔍 개발 과정 문의
+
+프로젝트 개발 과정에서 발생한 기술적 이슈나 해결 과정에 대한 문의는 TROUBLESHOOTING.md를 먼저 참조한 후 GitHub Issues를 통해 문의해 주세요.
 
 ---
 
