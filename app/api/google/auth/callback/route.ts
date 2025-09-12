@@ -17,17 +17,29 @@ const GOOGLE_TOKEN_COOKIE = 'google_token';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const code = searchParams.get('code');
-  const state = searchParams.get('state');
+  const stateParam = searchParams.get('state');
   const cookieStore = await cookies();
-  const storedState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
+  const storedNonce = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
 
   if (!code) {
     return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
   }
 
+  if (!stateParam || !storedNonce) {
+    return NextResponse.json({ error: 'State parameter or cookie is missing' }, { status: 400 });
+  }
+
+  let state: { nonce: string; returnPath: string };
+  try {
+    state = JSON.parse(Buffer.from(stateParam, 'base64').toString('utf8'));
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid state format.' }, { status: 400 });
+  }
+
+  const { nonce, returnPath } = state;
+
   // --- CSRF Protection ---
-  if (!state || !storedState || state !== storedState) {
+  if (nonce !== storedNonce) {
     return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
   }
 
@@ -46,8 +58,9 @@ export async function GET(req: NextRequest) {
     // Clear the state cookie now that it has been used
     cookieStore.delete(OAUTH_STATE_COOKIE);
 
-    // Redirect user back to the main page or a dashboard
-    return NextResponse.redirect(new URL('/', req.url));
+    // Redirect user back to the original page
+    const redirectUrl = new URL(returnPath || '/', req.url);
+    return NextResponse.redirect(redirectUrl);
 
   } catch (error: unknown) {
     const err = error as { response?: { data?: unknown }; message?: string };

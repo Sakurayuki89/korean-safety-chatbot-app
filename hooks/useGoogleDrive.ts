@@ -52,10 +52,10 @@ export const useGoogleDrive = () => {
     return authStatus;
   }, []);
 
-  const login = useCallback(async () => {
+  const login = useCallback(async (returnPath?: string) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/google/auth');
+      const res = await fetch(`/api/google/auth?returnPath=${encodeURIComponent(returnPath || '/')}`);
       if (!res.ok) throw new Error('Failed to get authorization URL');
       const { authUrl } = await res.json();
       window.location.href = authUrl;

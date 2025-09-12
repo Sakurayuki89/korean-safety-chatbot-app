@@ -3,7 +3,7 @@
  * @description API route for handling the initial Google OAuth 2.0 authentication request.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAuthorizationUrl } from '@/lib/google-drive';
 import { cookies } from 'next/headers';
 
@@ -11,20 +11,28 @@ export const dynamic = 'force-dynamic';
 
 const OAUTH_STATE_COOKIE = 'google_oauth_state';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const state = Buffer.from(Math.random().toString()).toString('base64');
+    const { searchParams } = new URL(req.url);
+    const returnPath = searchParams.get('returnPath') || '/';
+    
+    const nonce = Buffer.from(Math.random().toString()).toString('base64');
+    const state = {
+      nonce,
+      returnPath,
+    };
+    const stateString = Buffer.from(JSON.stringify(state)).toString('base64');
     const maxAge = 60 * 5; // 5 minutes
 
     const cookieStore = await cookies();
-    cookieStore.set(OAUTH_STATE_COOKIE, state, {
+    cookieStore.set(OAUTH_STATE_COOKIE, nonce, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
       maxAge: maxAge,
       path: '/',
     });
 
-    const authorizationUrl = getAuthorizationUrl(state);
+    const authorizationUrl = getAuthorizationUrl(stateString);
 
     return NextResponse.json({ authUrl: authorizationUrl });
 

@@ -34,7 +34,7 @@ const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
     <div style={{ padding: '20px', textAlign: 'center' }}>
       <h2>Connect to Google Drive</h2>
       <p>Please log in to access your PDF files from Google Drive.</p>
-      <button onClick={() => login()} disabled={loading} style={{ marginTop: '10px', padding: '10px 20px' }}>
+      <button onClick={() => login(window.location.pathname)} disabled={loading} style={{ marginTop: '10px', padding: '10px 20px' }}>
         {loading ? 'Redirecting...' : 'Login with Google'}
       </button>
       {error && <p style={{ color: 'red', marginTop: '10px' }}>Error: {error.message}</p>}
