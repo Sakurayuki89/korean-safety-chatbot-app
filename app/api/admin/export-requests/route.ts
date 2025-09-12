@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 import * as XLSX from 'xlsx';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +10,7 @@ export async function POST() {
   try {
     // 1. MongoDB에서 데이터 가져오기
     console.log('[POST /api/admin/export-requests] Step 1: Fetching requests from MongoDB.');
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const requests = await db.collection('item_requests').find({}).sort({ requestDate: -1 }).toArray();
 

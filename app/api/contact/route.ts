@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '../../../lib/mongodb';
+import { getMongoClient } from '../../../lib/mongodb';
 import { DB_NAME } from '../../../lib/constants';
 
 export async function POST(request: Request) {
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Message is a required field' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
 
     const contact = {

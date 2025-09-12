@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '../../../lib/mongodb';
+import { getMongoClient } from '../../../lib/mongodb';
 import genAI from '@/lib/gemini';
 import { KOREAN_PERSONA } from '@/lib/prompts';
 import { randomUUID } from 'crypto';
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
         // Save user message to DB right away
         try {
-          const client = await clientPromise;
+          const client = await getMongoClient();
           const db = client.db("korean-safety-chatbot");
           await db.collection("messages").insertOne({
             sessionId,
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
         // Now save the full assistant response
         try {
-          const client = await clientPromise;
+          const client = await getMongoClient();
           const db = client.db("korean-safety-chatbot");
           await db.collection("messages").insertOne({
             sessionId,

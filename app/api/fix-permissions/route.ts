@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getPublicUrl } from '@/lib/google-drive';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +24,7 @@ export async function POST() {
     }
 
     // Get all safety items
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const items = await db.collection('safety_items').find({}).toArray();
     

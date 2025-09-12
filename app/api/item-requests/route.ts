@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     console.log('[GET /api/item-requests] Fetching item requests...');
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const requests = await db.collection('item_requests').find({}).sort({ requestDate: -1 }).toArray();
     
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     console.log('[POST /api/item-requests] Request data:', { userName, itemName, itemSize, itemId });
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const result = await db.collection('item_requests').insertOne({
       userName,
@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const result = await db.collection('item_requests').deleteOne({ _id: new ObjectId(id) });
 

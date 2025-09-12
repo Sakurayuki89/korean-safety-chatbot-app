@@ -24,12 +24,17 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-  throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured in .env.local');
+// Only check credentials when functions are actually called, not at import time
+function validateCredentials() {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured in .env.local');
+  }
 }
 
-// Log the redirect URI for debugging
-console.log('[google-drive] GOOGLE_REDIRECT_URI:', GOOGLE_REDIRECT_URI);
+// Log the redirect URI for debugging (only if available)
+if (GOOGLE_REDIRECT_URI) {
+  console.log('[google-drive] GOOGLE_REDIRECT_URI:', GOOGLE_REDIRECT_URI);
+}
 
 /**
  * Scopes define the level of access the application is requesting.
@@ -46,6 +51,7 @@ const SCOPES = [
  * If GOOGLE_REDIRECT_URI is not set, it will be dynamically constructed.
  */
 export const getOAuth2Client = (req?: Request): OAuth2Client => {
+  validateCredentials();
   let redirectUri = GOOGLE_REDIRECT_URI;
   
   // If no redirect URI is set in env, construct it from the request

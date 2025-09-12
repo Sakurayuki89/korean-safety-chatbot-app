@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import clientPromise from '@/lib/mongodb';
-import { createAuthenticatedGoogleClient } from '@/lib/token-refresh';
+import { getMongoClient } from '@/lib/mongodb';
 import { ensureSafeChatbotFolders } from '@/lib/google-drive';
 
 export const dynamic = 'force-dynamic';
@@ -9,8 +8,15 @@ export const dynamic = 'force-dynamic';
 export async function POST() {
   console.log('[POST /api/admin/export-sheets] Received request.');
   try {
+    // Check if OAuth credentials are configured first
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      console.log('[POST /api/admin/export-sheets] OAuth credentials not configured.');
+      return NextResponse.json({ error: 'Google OAuth 설정이 필요합니다.' }, { status: 503 });
+    }
+
     // 1. 인증된 Google 클라이언트 생성
     console.log('[POST /api/admin/export-sheets] Step 1: Creating authenticated Google client.');
+    const { createAuthenticatedGoogleClient } = await import('@/lib/token-refresh');
     const oauth2Client = await createAuthenticatedGoogleClient();
     console.log('[POST /api/admin/export-sheets] Step 1: Authentication successful.');
 
@@ -21,7 +27,7 @@ export async function POST() {
 
     // 2. MongoDB에서 데이터 가져오기
     console.log('[POST /api/admin/export-sheets] Step 2: Fetching data from MongoDB.');
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const safetyItems = await db.collection('safety_items').find({}).sort({ createdAt: -1 }).toArray();
     

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 import { DB_NAME } from '@/lib/constants';
 const COLLECTION_NAME = 'announcements';
 
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const searchTerm = searchParams.get('search');
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     
     let query = {};
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAME);
 
@@ -72,7 +72,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID is required for update' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAME);
 
@@ -106,7 +106,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID is required for deletion' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAME);
 

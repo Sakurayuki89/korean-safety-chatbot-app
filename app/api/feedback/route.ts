@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 import { DB_NAME, COLLECTION_NAMES } from '@/lib/constants';
 
 // POST feedback
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'messageId and feedback are required' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAMES.FEEDBACK);
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 // GET feedback statistics (optional - for admin dashboard)
 export async function GET() {
   try {
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAMES.FEEDBACK);
 

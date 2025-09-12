@@ -48,3 +48,4 @@ playwright-report/
 # Cache
 .cache/
 .parcel-cache/
+.vercel

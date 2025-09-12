@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 import { DB_NAME, COLLECTION_NAMES } from '@/lib/constants';
 
 // GET all managed PDFs
 export async function GET() {
   try {
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const pdfs = await db.collection(COLLECTION_NAMES.PDFS).find({}).sort({ uploadDate: -1 }).toArray();
     return NextResponse.json(pdfs);
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'fileName and size are required' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAMES.PDFS);
 
@@ -51,7 +51,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID is required for deletion' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAMES.PDFS);
 

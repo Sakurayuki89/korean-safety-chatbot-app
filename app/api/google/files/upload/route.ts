@@ -1,13 +1,6 @@
 
 import { NextResponse, NextRequest } from 'next/server';
-import { MongoClient } from 'mongodb';
-
-// TODO: lib/mongodb.ts에서 클라이언트 인스턴스 가져오도록 리팩토링
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error('MONGODB_URI is not set in .env.local');
-}
-const client = new MongoClient(uri);
+import { getMongoClient } from '@/lib/mongodb';
 
 /**
  * @swagger
@@ -56,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. DB에서 세션 정보 조회
-    await client.connect();
+    const client = await getMongoClient();
     const db = client.db('chatbot-db');
     const sessionCollection = db.collection('user-sessions');
     const session = await sessionCollection.findOne({ sessionId });
@@ -87,7 +80,5 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error uploading file to Google Drive:', error);
     return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
-  } finally {
-    await client.close();
   }
 }

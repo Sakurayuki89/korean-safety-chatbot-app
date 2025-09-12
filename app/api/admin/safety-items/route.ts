@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
 import { uploadFileToDrive, getPublicUrl, deleteFileFromDrive, ensureSafeChatbotFolders } from '@/lib/google-drive';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 import { cookies } from 'next/headers';
 import { ObjectId } from 'mongodb';
 
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Save to MongoDB
     console.log('[POST /api/admin/safety-items] Step 5: Saving to MongoDB.');
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const result = await db.collection('safety_items').insertOne({
       name,
@@ -184,7 +184,7 @@ export async function DELETE(req: NextRequest) {
 
     // 3. Delete from MongoDB
     console.log(`[DELETE /api/admin/safety-items] Step 2: Deleting item from MongoDB. ID: ${id}`);
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const deleteResult = await db.collection('safety_items').deleteOne({ _id: new ObjectId(id) });
 

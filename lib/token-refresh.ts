@@ -72,6 +72,11 @@ export async function createAuthenticatedGoogleClient() {
     throw new Error('유효한 Google 인증 토큰이 없습니다.');
   }
 
+  // Check if OAuth credentials are configured
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured in .env.local');
+  }
+
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,

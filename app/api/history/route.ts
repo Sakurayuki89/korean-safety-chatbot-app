@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '../../../lib/mongodb';
+import { getMongoClient } from '../../../lib/mongodb';
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json([]);
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db("korean-safety-chatbot");
     const messagesCollection = db.collection("messages");
 

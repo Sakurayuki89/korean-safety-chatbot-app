@@ -1,12 +1,12 @@
 
 import { NextResponse } from 'next/server';
-import clientPromise from '../../../../lib/mongodb';
+import { getMongoClient } from '../../../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { DB_NAME } from '../../../../lib/constants';
 
 export async function GET() {
   try {
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
 
     const inquiries = await db
@@ -29,7 +29,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ message: 'Inquiry ID is required' }, { status: 400 });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db(DB_NAME);
 
     const result = await db.collection('contacts').deleteOne({ _id: new ObjectId(id) });
