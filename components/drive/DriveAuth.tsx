@@ -34,7 +34,12 @@ const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
   }, [isAuthenticated, onAuthSuccess]);
 
   if (isAuthenticated) {
-    return <p>You are authenticated with Google Drive.</p>;
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <p>✅ You are authenticated with Google Drive.</p>
+        <p>Loading admin dashboard...</p>
+      </div>
+    );
   }
 
   return (
@@ -49,34 +54,18 @@ const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
       </button>
       {error && <p style={{ color: 'red', marginTop: '10px' }}>Error: {error.message}</p>}
       
-      {/* Debug Information */}
-      <div style={{ marginTop: '30px', textAlign: 'left', background: '#333', padding: '15px', borderRadius: '5px', fontSize: '12px' }}>
-        <h3>🐛 Debug Information</h3>
-        <p><strong>Current URL:</strong> {typeof window !== 'undefined' ? window.location.href : 'Loading...'}</p>
-        <p><strong>Cookies:</strong> {typeof window !== 'undefined' ? (document.cookie || 'No cookies') : 'Loading...'}</p>
-        <p><strong>Auth State:</strong> {JSON.stringify({ isAuthenticated, loading, hasError: !!error })}</p>
+      {/* Simplified Debug Information */}
+      <details style={{ marginTop: '30px', textAlign: 'left', background: '#333', padding: '15px', borderRadius: '5px', fontSize: '12px' }}>
+        <summary style={{ cursor: 'pointer', marginBottom: '10px' }}>🐛 Debug Information (Click to expand)</summary>
         <p><strong>Environment:</strong> {typeof window !== 'undefined' ? window.location.host : 'Loading...'}</p>
+        <p><strong>Auth State:</strong> {JSON.stringify({ isAuthenticated, loading, hasError: !!error })}</p>
         <div style={{ marginTop: '10px', padding: '10px', background: '#444', borderRadius: '3px' }}>
-          <h4>⚠️ Google Cloud Console 설정 확인 필요</h4>
-          <p>OAuth 2.0 클라이언트 설정의 "승인된 리디렉션 URI"에 다음을 추가하세요:</p>
-          <code style={{ display: 'block', margin: '5px 0', padding: '5px', background: '#555', fontSize: '10px' }}>
+          <h4>Google Cloud Console 설정</h4>
+          <p>리디렉션 URI:</p>
+          <code style={{ display: 'block', margin: '5px 0', padding: '5px', background: '#555', fontSize: '10px', wordBreak: 'break-all' }}>
             {typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/api/google/auth/callback` : 'Loading...'}
           </code>
         </div>
-        <button 
-          onClick={async () => {
-            try {
-              const res = await fetch('/api/google/auth/status');
-              const data = await res.json();
-              alert(`Auth Status: ${JSON.stringify(data, null, 2)}`);
-            } catch (err) {
-              alert(`Error checking status: ${(err as Error).message}`);
-            }
-          }} 
-          style={{ margin: '10px 5px 0 0', padding: '5px 10px', fontSize: '10px' }}
-        >
-          Test Auth Status
-        </button>
         <button 
           onClick={() => {
             document.cookie = 'google_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
@@ -84,9 +73,9 @@ const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthSuccess }) => {
           }} 
           style={{ margin: '10px 0 0 0', padding: '5px 10px', fontSize: '10px' }}
         >
-          Clear Cookies & Reload
+          Clear Session & Reload
         </button>
-      </div>
+      </details>
     </div>
   );
 };

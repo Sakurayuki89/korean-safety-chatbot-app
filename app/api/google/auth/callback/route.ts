@@ -59,12 +59,10 @@ export async function GET(req: NextRequest) {
   
   if (nonce !== storedNonce) {
     console.log('[auth/callback] CSRF check failed - nonce mismatch');
-    // TEMPORARILY BYPASS CSRF CHECK FOR DEBUGGING
-    console.log('[auth/callback] WARNING: Proceeding despite CSRF mismatch (temporary debugging mode)');
-    // return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
-  } else {
-    console.log('[auth/callback] CSRF check passed');
+    return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
   }
+  
+  console.log('[auth/callback] CSRF check passed');
 
   try {
     console.log('[auth/callback] Exchanging code for tokens...');
