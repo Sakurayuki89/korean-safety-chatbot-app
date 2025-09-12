@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       path: '/',
     });
 
-    const authorizationUrl = getAuthorizationUrl(stateString);
+    const authorizationUrl = getAuthorizationUrl(stateString, req);
 
     return NextResponse.json({ authUrl: authorizationUrl });
 

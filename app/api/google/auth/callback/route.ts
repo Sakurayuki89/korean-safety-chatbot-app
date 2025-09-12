@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
   try {
     console.log('[auth/callback] Exchanging code for tokens...');
-    const oauth2Client = getOAuth2Client();
+    const oauth2Client = getOAuth2Client(req);
     const { tokens } = await oauth2Client.getToken(code);
     console.log('[auth/callback] Tokens received successfully');
 

@@ -24,9 +24,12 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI) {
-  throw new Error('Google OAuth credentials are not configured in .env.local');
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured in .env.local');
 }
+
+// Log the redirect URI for debugging
+console.log('[google-drive] GOOGLE_REDIRECT_URI:', GOOGLE_REDIRECT_URI);
 
 /**
  * Scopes define the level of access the application is requesting.
@@ -40,12 +43,26 @@ const SCOPES = [
 
 /**
  * Creates and configures an OAuth2 client instance.
+ * If GOOGLE_REDIRECT_URI is not set, it will be dynamically constructed.
  */
-export const getOAuth2Client = (): OAuth2Client => {
+export const getOAuth2Client = (req?: Request): OAuth2Client => {
+  let redirectUri = GOOGLE_REDIRECT_URI;
+  
+  // If no redirect URI is set in env, construct it from the request
+  if (!redirectUri && req) {
+    const url = new URL(req.url);
+    redirectUri = `${url.protocol}//${url.host}/api/google/auth/callback`;
+    console.log('[google-drive] Dynamically constructed redirect URI:', redirectUri);
+  }
+  
+  if (!redirectUri) {
+    throw new Error('GOOGLE_REDIRECT_URI not found and could not be constructed dynamically');
+  }
+
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI
+    redirectUri
   );
 };
 
@@ -54,8 +71,9 @@ export const getOAuth2Client = (): OAuth2Client => {
 /**
  * Generates a URL for user consent.
  */
-export const getAuthorizationUrl = (state: string): string => {
-  const oauth2Client = getOAuth2Client();
+export const getAuthorizationUrl = (state: string, req?: Request): string => {
+  const oauth2Client = getOAuth2Client(req);
+  console.log('[google-drive] Generating auth URL...');
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
@@ -67,8 +85,8 @@ export const getAuthorizationUrl = (state: string): string => {
 /**
  * Exchanges an authorization code for access and refresh tokens.
  */
-export const getTokens = async (code: string) => {
-  const oauth2Client = getOAuth2Client();
+export const getTokens = async (code: string, req?: Request) => {
+  const oauth2Client = getOAuth2Client(req);
   const { tokens } = await oauth2Client.getToken(code);
   return tokens;
 };
