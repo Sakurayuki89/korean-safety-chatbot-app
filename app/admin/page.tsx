@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import PasswordAuth from '../../components/auth/PasswordAuth';
 
@@ -12,11 +12,21 @@ const LoadingSpinner = () => (
 );
 
 // Dynamically import manager components
-const DynamicAnnouncementManager = dynamic(() => import('../../components/admin/AnnouncementManager'), { suspense: true });
-const DynamicPdfManager = dynamic(() => import('../../components/admin/PdfManager'), { suspense: true });
-const DynamicInquiryManager = dynamic(() => import('../../components/admin/InquiryManager'), { suspense: true });
-const DynamicSafetyItemManager = dynamic(() => import('../../components/admin/SafetyItemManager'), { suspense: true });
-const DynamicItemRequestManager = dynamic(() => import('../../components/admin/ItemRequestManager'), { suspense: true });
+const DynamicAnnouncementManager = dynamic(() => import('../../components/admin/AnnouncementManager'), { 
+  loading: () => <LoadingSpinner /> 
+});
+const DynamicPdfManager = dynamic(() => import('../../components/admin/PdfManager'), { 
+  loading: () => <LoadingSpinner /> 
+});
+const DynamicInquiryManager = dynamic(() => import('../../components/admin/InquiryManager'), { 
+  loading: () => <LoadingSpinner /> 
+});
+const DynamicSafetyItemManager = dynamic(() => import('../../components/admin/SafetyItemManager'), { 
+  loading: () => <LoadingSpinner /> 
+});
+const DynamicItemRequestManager = dynamic(() => import('../../components/admin/ItemRequestManager'), { 
+  loading: () => <LoadingSpinner /> 
+});
 
 // Main Admin Page Component
 export default function AdminPage() {
@@ -89,9 +99,7 @@ export default function AdminPage() {
       </div>
 
       <div>
-        <Suspense fallback={<LoadingSpinner />}>
-          {renderTabContent()}
-        </Suspense>
+        {renderTabContent()}
       </div>
     </div>
   );

@@ -26,7 +26,8 @@ export async function POST(request: Request) {
       );
 
       // Set the token in an HttpOnly cookie
-      cookies().set(COOKIE_NAME, token, {
+      const cookieStore = await cookies();
+      cookieStore.set(COOKIE_NAME, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

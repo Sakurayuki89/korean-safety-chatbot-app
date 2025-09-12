@@ -7,7 +7,8 @@ const COOKIE_NAME = 'admin-token';
 export async function POST() {
   try {
     // Clear the cookie by setting its maxAge to 0
-    cookies().set(COOKIE_NAME, '', {
+    const cookieStore = await cookies();
+    cookieStore.set(COOKIE_NAME, '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
