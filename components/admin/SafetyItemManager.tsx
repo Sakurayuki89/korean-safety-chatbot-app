@@ -68,15 +68,12 @@ export default function SafetyItemManager() {
   const handleGoogleAuth = async () => {
     setIsAuthenticating(true);
     try {
-      const response = await fetch('/api/google/auth');
+      // Use the new stateless OAuth endpoint
+      const response = await fetch('/api/google/auth/stateless');
       const result = await response.json();
       
       if (result.authUrl) {
-        // Store state in sessionStorage as backup for cookie issues
-        if (result.state) {
-          sessionStorage.setItem('google_oauth_state_backup', result.state);
-          console.log('[SafetyItemManager] Stored state in sessionStorage as backup:', result.state);
-        }
+        console.log('[SafetyItemManager] Using stateless OAuth flow');
         window.location.href = result.authUrl;
       } else {
         setMessage('인증 URL을 가져올 수 없습니다.');
