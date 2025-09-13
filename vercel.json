@@ -1,11 +1,3 @@
 {
-  "env": {
-    "MONGODB_URI": "mongodb+srv://safechat_db_user:RbtRjBWTSPohedwx@cluster0.9u8gzsf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    "GEMINI_API_KEY": "AIzaSyA2r4srsLnmRNxf0HDWkfk8XOKz0YYX7L4",
-    "ADMIN_PASSWORD": "7930",
-    "JWT_SECRET": "b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6",
-    "GOOGLE_CLIENT_ID": "482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com",
-    "GOOGLE_CLIENT_SECRET": "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",
-    "NODE_ENV": "production"
-  }
+  "buildCommand": "npm run build"
 }
