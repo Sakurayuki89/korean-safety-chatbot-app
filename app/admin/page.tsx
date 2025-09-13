@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import PasswordAuth from '../../components/auth/PasswordAuth';
+import PasswordAuth from '@/components/auth/PasswordAuth';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -12,19 +12,19 @@ const LoadingSpinner = () => (
 );
 
 // Dynamically import manager components
-const DynamicAnnouncementManager = dynamic(() => import('../../components/admin/AnnouncementManager'), { 
+const DynamicAnnouncementManager = dynamic(() => import('@/components/admin/AnnouncementManager'), { 
   loading: () => <LoadingSpinner /> 
 });
-const DynamicPdfManager = dynamic(() => import('../../components/admin/PdfManager'), { 
+const DynamicPdfManager = dynamic(() => import('@/components/admin/PdfManager'), { 
   loading: () => <LoadingSpinner /> 
 });
-const DynamicInquiryManager = dynamic(() => import('../../components/admin/InquiryManager'), { 
+const DynamicInquiryManager = dynamic(() => import('@/components/admin/InquiryManager'), { 
   loading: () => <LoadingSpinner /> 
 });
-const DynamicSafetyItemManager = dynamic(() => import('../../components/admin/SafetyItemManager'), { 
+const DynamicSafetyItemManager = dynamic(() => import('@/components/admin/SafetyItemManager'), { 
   loading: () => <LoadingSpinner /> 
 });
-const DynamicItemRequestManager = dynamic(() => import('../../components/admin/ItemRequestManager'), { 
+const DynamicItemRequestManager = dynamic(() => import('@/components/admin/ItemRequestManager'), { 
   loading: () => <LoadingSpinner /> 
 });
 
