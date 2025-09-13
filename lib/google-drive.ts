@@ -64,6 +64,12 @@ export const getOAuth2Client = (req?: Request): OAuth2Client => {
   validateCredentials();
   let redirectUri = GOOGLE_REDIRECT_URI;
   
+  // Force correct production URL if environment variable is wrong
+  if (redirectUri && redirectUri.includes('git-main-sakurayuki89s-projects')) {
+    redirectUri = 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
+    console.log('[google-drive] Fixed incorrect git branch redirect URI to production URL');
+  }
+  
   // If no redirect URI is set in env, construct it from the request
   if (!redirectUri && req) {
     const url = new URL(req.url);
@@ -74,6 +80,8 @@ export const getOAuth2Client = (req?: Request): OAuth2Client => {
   if (!redirectUri) {
     throw new Error('GOOGLE_REDIRECT_URI not found and could not be constructed dynamically');
   }
+
+  console.log('[google-drive] Using redirect URI:', redirectUri);
 
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
