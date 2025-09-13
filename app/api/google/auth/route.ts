@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     
     const maxAge = 60 * 5; // 5 minutes
 
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     cookieStore.set(OAUTH_STATE_COOKIE, nonce, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',

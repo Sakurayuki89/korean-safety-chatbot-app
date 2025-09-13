@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const stateParam = searchParams.get('state');
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const storedNonce = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
 
   console.log('[auth/callback] Params received:', { 
