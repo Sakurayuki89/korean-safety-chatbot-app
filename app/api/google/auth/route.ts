@@ -21,9 +21,13 @@ export async function GET(req: NextRequest) {
     const nonce = Buffer.from(Math.random().toString()).toString('base64');
     console.log('[auth] Generated nonce:', nonce);
     
+    // Add timestamp for stateless validation fallback
+    const timestamp = Date.now();
+    
     const state = {
       nonce,
       returnPath,
+      timestamp
     };
     const stateString = Buffer.from(JSON.stringify(state)).toString('base64');
     console.log('[auth] Encoded state:', stateString);
@@ -37,7 +41,8 @@ export async function GET(req: NextRequest) {
     const response = NextResponse.json({ 
       authUrl: authorizationUrl,
       state: stateString,
-      nonce: nonce
+      nonce: nonce,
+      timestamp: timestamp
     });
     
     // Try multiple cookie strategies
@@ -75,6 +80,8 @@ export async function GET(req: NextRequest) {
       name2: OAUTH_STATE_COOKIE + '_lax_secure', 
       name3: OAUTH_STATE_COOKIE + '_lax_insecure',
       value: stateString,
+      timestamp: timestamp,
+      nonce: nonce,
       options1: cookieOptions1,
       options2: cookieOptions2,
       options3: cookieOptions3
