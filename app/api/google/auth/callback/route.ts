@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
       secure: process.env.NODE_ENV !== 'development',
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
-      sameSite: 'lax'  // Add sameSite attribute
+      sameSite: 'none'
     });
 
     // Clear the state cookie now that it has been used

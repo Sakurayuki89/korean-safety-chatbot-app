@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       secure: process.env.NODE_ENV !== 'development',
       maxAge: maxAge,
       path: '/',
-      sameSite: 'lax'  // Add sameSite attribute
+      sameSite: 'none'
     });
     
     console.log('[auth] Set state cookie with nonce:', nonce);
