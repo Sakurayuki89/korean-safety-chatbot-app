@@ -22,7 +22,7 @@ const SHEETS_SUBFOLDER = 'sheets';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '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';
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/stateless/callback';
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
 
 // Only check credentials when functions are actually called, not at import time
 function validateCredentials() {

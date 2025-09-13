@@ -10,9 +10,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getOAuth2Client } from '@/lib/google-drive';
 import { cookies } from 'next/headers';
 
-export const dynamic = 'force-dynamic'; // Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
-const OAUTH_STATE_COOKIE = 'google_oauth_state';
 const GOOGLE_TOKEN_COOKIE = 'google_token';
 
 export async function GET(req: NextRequest) {
@@ -64,26 +63,15 @@ export async function GET(req: NextRequest) {
     const { tokens } = await oauth2Client.getToken(code);
     console.log('[auth/callback] Tokens received successfully');
 
-    // --- Store Tokens in Secure Cookie ---
+    // Store tokens in secure cookie (only essential cookie)
     console.log('[auth/callback] Storing tokens in cookie...');
     cookieStore.set(GOOGLE_TOKEN_COOKIE, JSON.stringify(tokens), {
       httpOnly: true,
-      secure: true, // sameSite: 'none' requires secure: true
+      secure: true,
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
-      sameSite: 'none'
+      sameSite: 'lax' // More permissive for token cookie
     });
-
-    // Clear any existing state cookies for cleanup
-    try {
-      cookieStore.delete(OAUTH_STATE_COOKIE);
-      cookieStore.delete(OAUTH_STATE_COOKIE + '_none');
-      cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_secure');
-      cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_insecure');
-      console.log('[auth/callback] Cleared state cookies (cleanup)');
-    } catch (error) {
-      console.log('[auth/callback] Cookie cleanup failed (not critical):', error);
-    }
 
     // Redirect user back to the original page
     const redirectUrl = new URL(returnPath || '/', req.url);
