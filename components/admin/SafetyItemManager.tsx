@@ -72,6 +72,11 @@ export default function SafetyItemManager() {
       const result = await response.json();
       
       if (result.authUrl) {
+        // Store state in sessionStorage as backup for cookie issues
+        if (result.state) {
+          sessionStorage.setItem('google_oauth_state_backup', result.state);
+          console.log('[SafetyItemManager] Stored state in sessionStorage as backup:', result.state);
+        }
         window.location.href = result.authUrl;
       } else {
         setMessage('인증 URL을 가져올 수 없습니다.');

@@ -30,44 +30,55 @@ export async function GET(req: NextRequest) {
     
     const maxAge = 60 * 5; // 5 minutes
 
-    const cookieStore = cookies();
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true, // sameSite: 'none' requires secure: true
-      maxAge: maxAge,
-      path: '/',
-      sameSite: 'none' as const
-    };
-    
-    cookieStore.set(OAUTH_STATE_COOKIE, stateString, cookieOptions);
-    
-    console.log('[auth] Set state cookie:', {
-      name: OAUTH_STATE_COOKIE,
-      value: stateString,
-      options: cookieOptions,
-      nonce: nonce
-    });
-
     const authorizationUrl = getAuthorizationUrl(stateString, req);
     console.log('[auth] Generated authorization URL');
 
-    // Store state in response headers as well for debugging
+    // Create response first
     const response = NextResponse.json({ 
       authUrl: authorizationUrl,
       state: stateString,
       nonce: nonce
     });
     
-    // Set additional cookie with different settings for testing
-    response.cookies.set(OAUTH_STATE_COOKIE + '_backup', stateString, {
-      httpOnly: true,
+    // Try multiple cookie strategies
+    const cookieOptions1 = {
+      httpOnly: false, // Allow client-side access for debugging
       secure: true,
       maxAge: maxAge,
       path: '/',
-      sameSite: 'lax' // Try with lax as backup
-    });
+      sameSite: 'none' as const
+    };
     
-    console.log('[auth] Set backup cookie with lax sameSite');
+    const cookieOptions2 = {
+      httpOnly: false,
+      secure: true,
+      maxAge: maxAge,
+      path: '/',
+      sameSite: 'lax' as const
+    };
+    
+    const cookieOptions3 = {
+      httpOnly: false,
+      secure: false, // Try without secure for testing
+      maxAge: maxAge,
+      path: '/',
+      sameSite: 'lax' as const
+    };
+    
+    // Set multiple cookies with different strategies
+    response.cookies.set(OAUTH_STATE_COOKIE + '_none', stateString, cookieOptions1);
+    response.cookies.set(OAUTH_STATE_COOKIE + '_lax_secure', stateString, cookieOptions2);
+    response.cookies.set(OAUTH_STATE_COOKIE + '_lax_insecure', stateString, cookieOptions3);
+    
+    console.log('[auth] Set multiple test cookies:', {
+      name1: OAUTH_STATE_COOKIE + '_none',
+      name2: OAUTH_STATE_COOKIE + '_lax_secure', 
+      name3: OAUTH_STATE_COOKIE + '_lax_insecure',
+      value: stateString,
+      options1: cookieOptions1,
+      options2: cookieOptions2,
+      options3: cookieOptions3
+    });
     
     return response;
 

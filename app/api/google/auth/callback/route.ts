@@ -22,17 +22,23 @@ export async function GET(req: NextRequest) {
   const stateParam = searchParams.get('state');
   const cookieStore = cookies();
   const storedState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
-  const backupState = cookieStore.get(OAUTH_STATE_COOKIE + '_backup')?.value;
+  const noneState = cookieStore.get(OAUTH_STATE_COOKIE + '_none')?.value;
+  const laxSecureState = cookieStore.get(OAUTH_STATE_COOKIE + '_lax_secure')?.value;
+  const laxInsecureState = cookieStore.get(OAUTH_STATE_COOKIE + '_lax_insecure')?.value;
 
   // Enhanced debugging
   console.log('[auth/callback] Full debug info:', { 
     hasCode: !!code, 
     hasState: !!stateParam, 
     hasStoredState: !!storedState,
-    hasBackupState: !!backupState,
+    hasNoneState: !!noneState,
+    hasLaxSecureState: !!laxSecureState,
+    hasLaxInsecureState: !!laxInsecureState,
     stateParam: stateParam,
     storedState: storedState,
-    backupState: backupState,
+    noneState: noneState,
+    laxSecureState: laxSecureState,
+    laxInsecureState: laxInsecureState,
     allCookies: Object.fromEntries(
       cookieStore.getAll().map(cookie => [cookie.name, cookie.value])
     ),
@@ -44,15 +50,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
   }
 
-  // Check both primary and backup state cookies
-  const finalStoredState = storedState || backupState;
+  // Check all possible state cookies
+  const finalStoredState = storedState || noneState || laxSecureState || laxInsecureState;
   
   if (!stateParam || !finalStoredState) {
     console.log('[auth/callback] State parameter or cookie is missing', {
       hasStateParam: !!stateParam,
       hasStoredState: !!storedState,
-      hasBackupState: !!backupState,
-      finalStoredState: !!finalStoredState
+      hasNoneState: !!noneState,
+      hasLaxSecureState: !!laxSecureState,
+      hasLaxInsecureState: !!laxInsecureState,
+      finalStoredState: !!finalStoredState,
+      whichCookieWorked: finalStoredState === storedState ? 'original' : 
+                        finalStoredState === noneState ? 'sameSite_none' :
+                        finalStoredState === laxSecureState ? 'sameSite_lax_secure' :
+                        finalStoredState === laxInsecureState ? 'sameSite_lax_insecure' : 'none'
     });
     return NextResponse.json({ error: 'State parameter or cookie is missing' }, { status: 400 });
   }
@@ -69,11 +81,19 @@ export async function GET(req: NextRequest) {
   const { nonce, returnPath } = state;
 
   // --- CSRF Protection ---
+  const whichCookieWorked = finalStoredState === storedState ? 'original' : 
+                           finalStoredState === noneState ? 'sameSite_none' :
+                           finalStoredState === laxSecureState ? 'sameSite_lax_secure' :
+                           finalStoredState === laxInsecureState ? 'sameSite_lax_insecure' : 'unknown';
+  
   console.log('[auth/callback] Comparing states:', { 
     receivedState: stateParam, 
     storedState: storedState,
-    backupState: backupState,
+    noneState: noneState,
+    laxSecureState: laxSecureState,
+    laxInsecureState: laxInsecureState,
     finalStoredState: finalStoredState,
+    whichCookieWorked: whichCookieWorked,
     match: stateParam === finalStoredState 
   });
   
@@ -100,9 +120,13 @@ export async function GET(req: NextRequest) {
       sameSite: 'none'
     });
 
-    // Clear both state cookies now that they have been used
+    // Clear all state cookies now that they have been used
     cookieStore.delete(OAUTH_STATE_COOKIE);
-    cookieStore.delete(OAUTH_STATE_COOKIE + '_backup');
+    cookieStore.delete(OAUTH_STATE_COOKIE + '_none');
+    cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_secure');
+    cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_insecure');
+    
+    console.log('[auth/callback] Successfully used cookie:', whichCookieWorked);
 
     // Redirect user back to the original page
     const redirectUrl = new URL(returnPath || '/', req.url);
