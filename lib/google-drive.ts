@@ -64,6 +64,15 @@ export const getOAuth2Client = (req?: Request): OAuth2Client => {
   validateCredentials();
   let redirectUri = GOOGLE_REDIRECT_URI;
   
+  // Always use production URL for korean-safety-chatbot-app.vercel.app
+  if (req) {
+    const host = req.headers.get ? req.headers.get('host') : new URL(req.url).host;
+    if (host === 'korean-safety-chatbot-app.vercel.app') {
+      redirectUri = 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
+      console.log('[google-drive] Using production redirect URI for production domain');
+    }
+  }
+  
   // Force correct production URL if environment variable is wrong
   if (redirectUri && redirectUri.includes('git-main-sakurayuki89s-projects')) {
     redirectUri = 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
