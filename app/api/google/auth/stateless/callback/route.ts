@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid state format.' }, { status: 400 });
   }
 
-  const { nonce, returnPath, timestamp } = state;
+  const { returnPath, timestamp } = state;
 
   // Basic timestamp validation (state should not be older than 10 minutes)
   const now = Date.now();

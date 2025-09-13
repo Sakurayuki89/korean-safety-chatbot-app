@@ -10,7 +10,7 @@
  * Based on the specifications in ARCHITECTURE_DESIGN.md.
  */
 
-import { google, drive_v3 } from 'googleapis';
+import { google } from 'googleapis';
 import { OAuth2Client, Credentials } from 'google-auth-library';
 
 // 폴더 관리 상수

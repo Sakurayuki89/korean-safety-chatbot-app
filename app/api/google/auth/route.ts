@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthorizationUrl } from '@/lib/google-drive';
-import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 

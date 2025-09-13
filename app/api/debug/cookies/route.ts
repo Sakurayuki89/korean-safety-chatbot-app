@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
   
   return NextResponse.json({

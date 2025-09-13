@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const stateParam = searchParams.get('state');
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   // Simplified debugging - no cookie validation needed
   console.log('[auth/callback] Request info:', { 
@@ -52,11 +52,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid state format.' }, { status: 400 });
   }
 
-  const { nonce, returnPath } = state;
+  const { returnPath } = state;
 
   console.log('[auth/callback] Parsed state successfully:', {
-    returnPath: returnPath,
-    hasNonce: !!nonce
+    returnPath: returnPath
   });
 
   try {
