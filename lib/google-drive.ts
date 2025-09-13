@@ -85,8 +85,6 @@ export const getOAuth2Client = (req?: Request): OAuth2Client => {
 export const getAuthorizationUrl = (state: string, req?: Request): string => {
   const oauth2Client = getOAuth2Client(req);
   console.log('[google-drive] Generating auth URL...');
-  console.log('[google-drive] Using redirect URI:', oauth2Client.redirectUri);
-  console.log('[google-drive] Using client ID:', oauth2Client._clientId);
   
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
