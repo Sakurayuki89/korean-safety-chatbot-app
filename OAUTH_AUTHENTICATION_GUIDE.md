@@ -158,8 +158,8 @@ const checkAuth = async () => {
 ### **환경 변수 체크리스트**
 ```bash
 # Vercel 환경변수 확인
-GOOGLE_CLIENT_ID=482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 GOOGLE_REDIRECT_URI=https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback
 
 # MongoDB (선택사항)

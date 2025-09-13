@@ -240,8 +240,8 @@ remote: —— Google OAuth Client ID/Secret ———————————�
    ```json
    {
      "env": {
-       "GOOGLE_CLIENT_ID": "482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com",
-       "GOOGLE_CLIENT_SECRET": "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"
+       "GOOGLE_CLIENT_ID": "your_google_oauth_client_id",
+       "GOOGLE_CLIENT_SECRET": "your_google_oauth_client_secret"
      }
    }
    ```
