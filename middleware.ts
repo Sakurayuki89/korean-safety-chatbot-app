@@ -1,17 +1,26 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6';
-const COOKIE_NAME = 'admin-token';
+const GOOGLE_TOKEN_COOKIE = 'google_token';
 
-async function verifyToken(token: string, secret: string): Promise<boolean> {
+async function verifyGoogleToken(tokenString: string): Promise<boolean> {
   try {
-    await jwtVerify(token, new TextEncoder().encode(secret));
+    const tokens = JSON.parse(tokenString);
+    
+    // Basic token structure validation
+    if (!tokens.access_token) {
+      return false;
+    }
+    
+    // Check if token is expired (if expiry info is available)
+    if (tokens.expiry_date && tokens.expiry_date < Date.now()) {
+      return false;
+    }
+    
     return true;
   } catch (error) {
-    console.error('JWT Verification Error:', error);
+    console.error('Google Token Verification Error:', error);
     return false;
   }
 }
@@ -21,42 +30,38 @@ export async function middleware(request: NextRequest) {
 
   // Check if the request is for the admin page or an admin API route
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not set. Allowing access to admin page for login.');
-      // Allow access to admin page for login, but deny API access
-      if (pathname.startsWith('/api/admin')) {
-        return new NextResponse(
-          JSON.stringify({ success: false, message: 'Server configuration error' }),
-          { status: 500, headers: { 'content-type': 'application/json' } }
-        );
-      }
-      return NextResponse.next();
-    }
-
-    const token = request.cookies.get(COOKIE_NAME)?.value;
+    console.log('[middleware] Checking auth for:', pathname);
+    
+    const token = request.cookies.get(GOOGLE_TOKEN_COOKIE)?.value;
+    console.log('[middleware] Google token exists:', !!token);
 
     // The /admin page itself will handle the redirect to the login form.
     // This middleware will primarily protect direct access to sub-pages and APIs.
-    if (!token || !(await verifyToken(token, JWT_SECRET))) {
+    if (!token || !(await verifyGoogleToken(token))) {
+      console.log('[middleware] Google token invalid or missing');
+      
       // For API routes, deny access
       if (pathname.startsWith('/api/admin')) {
         return new NextResponse(
-          JSON.stringify({ success: false, message: 'Authentication failed' }),
+          JSON.stringify({ success: false, message: 'Authentication required' }),
           { status: 401, headers: { 'content-type': 'application/json' } }
         );
       }
 
       // For the /admin page, allow the request to proceed.
-      // The page itself will render the PasswordAuth component if not authenticated.
-      // This prevents a redirect loop if the login page is also at /admin.
+      // The page itself will render the Google login component if not authenticated.
       if (pathname === '/admin') {
+        console.log('[middleware] Allowing access to /admin for login');
         return NextResponse.next();
       }
 
       // For any other /admin sub-pages, redirect to the main /admin login page.
+      console.log('[middleware] Redirecting to /admin for login');
       request.nextUrl.pathname = '/admin';
       return NextResponse.redirect(request.nextUrl);
     }
+    
+    console.log('[middleware] Google token valid, allowing access');
   }
 
   return NextResponse.next();

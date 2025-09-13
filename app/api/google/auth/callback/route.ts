@@ -71,6 +71,13 @@ export async function GET(req: NextRequest) {
 
     // Store tokens in secure cookie (only essential cookie)
     console.log('[auth/callback] Storing tokens in cookie...');
+    console.log('[auth/callback] Token details:', {
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      expiryDate: tokens.expiry_date,
+      tokenType: tokens.token_type
+    });
+    
     cookieStore.set(GOOGLE_TOKEN_COOKIE, JSON.stringify(tokens), {
       httpOnly: true,
       secure: true,
@@ -78,6 +85,8 @@ export async function GET(req: NextRequest) {
       path: '/',
       sameSite: 'lax' // More permissive for token cookie
     });
+    
+    console.log('[auth/callback] Cookie set successfully');
 
     // Redirect user back to the original page
     const baseUrl = new URL(req.url).origin;
