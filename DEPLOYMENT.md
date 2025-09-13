@@ -25,14 +25,14 @@
 #### 1. Vercel 환경변수 설정
 ```bash
 # 데이터베이스
-MONGODB_URI="mongodb+srv://safechat_db_user:RbtRjBWTSPohedwx@cluster0.9u8gzsf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGODB_URI="YOUR_MONGODB_CONNECTION_STRING"
 
 # AI 서비스
-GEMINI_API_KEY="AIzaSyA2r4srsLnmRNxf0HDWkfk8XOKz0YYX7L4"
+GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 
 # Google OAuth (리디렉션 URI는 동적 생성)
-GOOGLE_CLIENT_ID="482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET="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"
+GOOGLE_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID"
+GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET"
 
 # 환경 설정
 NODE_ENV="production"
