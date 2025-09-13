@@ -49,3 +49,6 @@ playwright-report/
 .cache/
 .parcel-cache/
 .vercel
+
+# TypeScript Build Info
+*.tsbuildinfo
