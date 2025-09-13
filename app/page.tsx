@@ -18,9 +18,13 @@ export default function HomePage() {
         {/* 메인 콘텐츠: 공지사항 게시판 */}
         <NoticeBoard />
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center space-x-4">
           <a href="/contact" className="text-blue-400 hover:text-blue-300 underline">
             관리자에게 문의하기
+          </a>
+          <span className="text-gray-400">|</span>
+          <a href="/admin" className="text-green-400 hover:text-green-300 underline">
+            관리자 페이지
           </a>
         </div>
       </div>
