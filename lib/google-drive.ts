@@ -10,8 +10,8 @@
  * Based on the specifications in ARCHITECTURE_DESIGN.md.
  */
 
-import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
+import { google, drive_v3 } from 'googleapis';
+import { OAuth2Client, Credentials } from 'google-auth-library';
 
 // 폴더 관리 상수
 const SAFE_CHATBOT_FOLDER = 'safe-chatbot';
@@ -100,11 +100,14 @@ export const getTokens = async (code: string, req?: Request) => {
 /**
  * Validates and refreshes access token if needed
  */
-export const validateAndRefreshToken = async (tokens: any) => {
+export const validateAndRefreshToken = async (tokens: Credentials) => {
   const oauth2Client = getOAuth2Client();
   oauth2Client.setCredentials(tokens);
   
   try {
+    if (!tokens.access_token) {
+      throw new Error('Access token not found in credentials');
+    }
     // Check if token is valid by making a simple API call
     const tokenInfo = await oauth2Client.getTokenInfo(tokens.access_token);
     
