@@ -17,7 +17,7 @@
 
 ### 1. 웹사이트 접속
 ```
-https://korean-safety-chatbot.vercel.app
+https://korean-safety-chatbot-app.vercel.app
 또는
 https://your-custom-domain.com
 ```

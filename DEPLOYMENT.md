@@ -43,7 +43,7 @@ OAuth 2.0 클라이언트의 **승인된 리디렉션 URI**에 다음 URL들 추
 
 ```
 # 현재 Vercel 배포 URL
-https://korean-safety-chatbot-app-git-main-sakurayuki89s-projects.vercel.app/api/google/auth/callback
+https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback
 
 # 커스텀 도메인 사용 시 (예시)
 https://your-custom-domain.com/api/google/auth/callback
@@ -90,7 +90,7 @@ git push origin main
 1. Vercel 프로젝트 설정에서 Domain 추가
 2. DNS 설정에서 CNAME 레코드 추가:
    ```
-   CNAME: www -> korean-safety-chatbot-app-git-main-sakurayuki89s-projects.vercel.app
+   CNAME: www -> korean-safety-chatbot-app.vercel.app
    ```
 3. Google Cloud Console의 리디렉션 URI 업데이트
 

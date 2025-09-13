@@ -7,7 +7,7 @@
 ## 🎉 프로젝트 완성 및 배포 상태 (2025-09-13)
 
 ### 📊 최종 완성 상태
-- ✅ **배포 완료**: https://korean-safety-chatbot-gc6asvr0r-sakurayuki89s-projects.vercel.app
+- ✅ **배포 완료**: https://korean-safety-chatbot-app.vercel.app
 - ✅ **모든 핵심 기능 구현 완료**
 - ✅ **보안 취약점 해결 완료** (7개 → 1개, 85.7% 개선)
 - ✅ **빌드 오류 100% 해결**
@@ -80,7 +80,7 @@ function validateCredentials() {
 ### 🌐 배포 환경 설정
 - **플랫폼**: Vercel
 - **환경변수**: MongoDB, Gemini AI, Google OAuth 설정 완료
-- **도메인**: korean-safety-chatbot-gc6asvr0r-sakurayuki89s-projects.vercel.app
+- **도메인**: korean-safety-chatbot-app.vercel.app
 - **SSL/TLS**: 자동 적용됨
 
 ### 🔒 보안 강화 완료
