@@ -22,7 +22,7 @@ const SHEETS_SUBFOLDER = 'sheets';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
 
 // Only check credentials when functions are actually called, not at import time
 function validateCredentials() {
