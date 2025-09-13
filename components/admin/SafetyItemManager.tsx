@@ -56,11 +56,22 @@ export default function SafetyItemManager() {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('/api/admin/safety-items', {
-        method: 'GET',
+      console.log('[SafetyItemManager] Checking Google OAuth status...');
+      const response = await fetch('/api/auth/status', {
+        credentials: 'include', // Google OAuth 쿠키 전송
+        cache: 'no-store'
       });
-      setIsAuthenticated(response.status !== 401);
-    } catch {
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[SafetyItemManager] Auth status:', data);
+        setIsAuthenticated(data.isAuthenticated);
+      } else {
+        console.log('[SafetyItemManager] Auth check failed:', response.status);
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('[SafetyItemManager] Auth check error:', error);
       setIsAuthenticated(false);
     }
   };
