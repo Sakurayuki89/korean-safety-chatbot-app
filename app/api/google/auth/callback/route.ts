@@ -80,20 +80,53 @@ export async function GET(req: NextRequest) {
     
     cookieStore.set(GOOGLE_TOKEN_COOKIE, JSON.stringify(tokens), {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
-      sameSite: 'lax' // More permissive for token cookie
+      sameSite: 'lax'
     });
     
     console.log('[auth/callback] Cookie set successfully');
 
-    // Redirect user back to the original page
+    // Create a success page with JavaScript redirect to ensure cookie is set
     const baseUrl = new URL(req.url).origin;
     const redirectPath = returnPath || '/';
-    const redirectUrl = `${baseUrl}${redirectPath.startsWith('/') ? redirectPath : '/' + redirectPath}`;
-    console.log('[auth/callback] Redirecting to:', redirectUrl);
-    return NextResponse.redirect(redirectUrl);
+    const targetUrl = `${baseUrl}${redirectPath.startsWith('/') ? redirectPath : '/' + redirectPath}`;
+    
+    console.log('[auth/callback] Creating success page with redirect to:', targetUrl);
+    
+    // Return HTML page that waits briefly then redirects
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>로그인 성공</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #1f2937; color: white; }
+            .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+    </head>
+    <body>
+        <h2>로그인 성공!</h2>
+        <div class="spinner"></div>
+        <p>관리자 페이지로 이동 중...</p>
+        <script>
+            console.log('OAuth success, redirecting to:', '${targetUrl}');
+            setTimeout(() => {
+                window.location.href = '${targetUrl}';
+            }, 1500);
+        </script>
+    </body>
+    </html>`;
+    
+    return new NextResponse(html, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html'
+      }
+    });
 
   } catch (error: unknown) {
     const err = error as { response?: { data?: unknown; status?: number }; message?: string; code?: string };
