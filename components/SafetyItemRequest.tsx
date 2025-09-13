@@ -17,7 +17,6 @@ interface SafetyItemRequestProps {
 }
 
 export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
-  console.log('🚀 SafetyItemRequest component loaded - NEW VERSION');
   const [items, setItems] = useState<SafetyItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<SafetyItem | null>(null);
   const [userName, setUserName] = useState('');
@@ -191,11 +190,12 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
                     e.stopPropagation(); // Prevent selecting the item
                     setModalImageUrl(convertGoogleDriveUrl(item.imageUrl));
                   }}>
-                    <Image 
-                      src={convertGoogleDriveUrl(item.imageUrl)} 
-                      alt={item.description} 
+                    <Image
+                      src={convertGoogleDriveUrl(item.imageUrl)}
+                      alt={item.description}
                       fill
-                      className="object-contain rounded-md" 
+                      sizes="(max-width: 768px) 90vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-contain rounded-md"
                       onError={() => {
                         console.log(`Image failed to load: ${item.description}, URL: ${convertGoogleDriveUrl(item.imageUrl)}`);
                         handleImageError(item._id);

@@ -25,15 +25,17 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
       onClick={onClose}
     >
       {/* Image container */}
-      <div 
-        className="relative max-w-full max-h-full"
+      <div
+        className="relative w-[90vw] h-[80vh] max-w-4xl max-h-[80vh]"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
       >
         <Image
           src={imageUrl}
           alt="Enlarged view"
           fill
+          sizes="(max-width: 768px) 90vw, (max-width: 1200px) 80vw, 70vw"
           className="object-contain rounded-lg"
+          priority
         />
       </div>
 

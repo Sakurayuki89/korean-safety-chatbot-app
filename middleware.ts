@@ -28,6 +28,15 @@ async function verifyGoogleToken(tokenString: string): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Exclude static files and Next.js internal paths
+  if (
+    pathname.startsWith('/_next') || // Next.js internals
+    pathname.includes('.') || // Files with extensions
+    pathname === '/api/auth/login' // The login API itself
+  ) {
+    return NextResponse.next();
+  }
+
   // Check if the request is for the admin page or an admin API route
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     console.log('[middleware] Checking auth for:', pathname);

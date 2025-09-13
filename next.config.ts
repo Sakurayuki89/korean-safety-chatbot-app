@@ -27,8 +27,17 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // 서버 컴포넌트에서 외부 패키지로 처리할 목록
-  serverExternalPackages: ['mongodb'],
+  // 개발 서버 최적화 설정 (HMR 안정화)
+  ...(process.env.NODE_ENV === 'development' && {
+    onDemandEntries: {
+      // 페이지를 메모리에 유지하는 시간 (ms)
+      maxInactiveAge: 25 * 1000,
+      // 동시에 유지할 페이지 수
+      pagesBufferLength: 2,
+    }
+  }),
+
+  
 
   // 보안 헤더 설정
   async headers() {
