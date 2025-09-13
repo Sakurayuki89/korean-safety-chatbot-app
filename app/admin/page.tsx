@@ -37,23 +37,47 @@ export default function AdminPage() {
     // Check authentication status when the component mounts
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/status'); // This API needs to be created
+        console.log('[AdminPage] Checking authentication status...');
+        const response = await fetch('/api/auth/status', {
+          credentials: 'include', // 이것이 핵심! 쿠키 전송을 위해 필요
+          cache: 'no-store'
+        });
+        
+        console.log('[AdminPage] Auth status response:', response.status, response.ok);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('[AdminPage] Auth data:', data);
           setIsAuthenticated(data.isAuthenticated);
+        } else {
+          console.error('[AdminPage] Auth check failed with status:', response.status);
+          setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error('Auth check failed', error);
+        console.error('[AdminPage] Auth check failed with error:', error);
         setIsAuthenticated(false);
       }
       setIsLoading(false);
     };
-    checkAuth();
+    
+    // 약간의 지연을 두어 쿠키가 완전히 설정될 시간 확보
+    setTimeout(checkAuth, 500);
   }, []);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    setIsAuthenticated(false);
+    try {
+      console.log('[AdminPage] Logging out...');
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // 쿠키 전송을 위해 필요
+      });
+      setIsAuthenticated(false);
+      console.log('[AdminPage] Logout successful');
+    } catch (error) {
+      console.error('[AdminPage] Logout failed:', error);
+      // 로그아웃 실패해도 클라이언트에서는 인증 해제
+      setIsAuthenticated(false);
+    }
   };
 
   const renderTabContent = () => {
