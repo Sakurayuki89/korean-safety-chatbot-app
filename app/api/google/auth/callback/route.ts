@@ -59,7 +59,11 @@ export async function GET(req: NextRequest) {
 
   try {
     console.log('[auth/callback] Exchanging code for tokens...');
+    console.log('[auth/callback] Code (truncated):', code?.substring(0, 20) + '...');
+    
     const oauth2Client = getOAuth2Client(req);
+    console.log('[auth/callback] OAuth2 client created successfully');
+    
     const { tokens } = await oauth2Client.getToken(code);
     console.log('[auth/callback] Tokens received successfully');
 
@@ -79,8 +83,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
 
   } catch (error: unknown) {
-    const err = error as { response?: { data?: unknown }; message?: string };
-    console.error('Error exchanging token:', err.response?.data || err.message || 'Unknown error');
-    return NextResponse.json({ error: 'Failed to exchange authorization code for tokens' }, { status: 500 });
+    const err = error as { response?: { data?: unknown; status?: number }; message?: string; code?: string };
+    console.error('[auth/callback] Token exchange error details:', {
+      message: err.message,
+      code: err.code,
+      status: err.response?.status,
+      data: err.response?.data
+    });
+    
+    // Return more specific error information
+    let errorMessage = 'Failed to exchange authorization code for tokens';
+    if (err.message?.includes('invalid_client')) {
+      errorMessage = 'Invalid Google OAuth client configuration';
+    } else if (err.message?.includes('redirect_uri')) {
+      errorMessage = 'OAuth redirect URI mismatch';
+    } else if (err.message?.includes('invalid_grant')) {
+      errorMessage = 'Authorization code expired or invalid';
+    }
+    
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: err.message 
+    }, { status: 500 });
   }
 }

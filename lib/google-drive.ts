@@ -30,9 +30,14 @@ function validateCredentials() {
   console.log('[google-drive] CLIENT_ID exists:', !!GOOGLE_CLIENT_ID);
   console.log('[google-drive] CLIENT_SECRET exists:', !!GOOGLE_CLIENT_SECRET);
   console.log('[google-drive] REDIRECT_URI:', GOOGLE_REDIRECT_URI);
+  console.log('[google-drive] CLIENT_ID (first 20 chars):', GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
   
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-    throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured in .env.local');
+    throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured');
+  }
+  
+  if (!GOOGLE_REDIRECT_URI) {
+    throw new Error('GOOGLE_REDIRECT_URI is not configured');
   }
 }
 
