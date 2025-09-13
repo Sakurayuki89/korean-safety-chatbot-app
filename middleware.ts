@@ -22,10 +22,15 @@ export async function middleware(request: NextRequest) {
   // Check if the request is for the admin page or an admin API route
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not set. Denying access.');
-      // Redirect to a generic error page or home page if the server is misconfigured
-      request.nextUrl.pathname = '/';
-      return NextResponse.redirect(request.nextUrl);
+      console.error('JWT_SECRET is not set. Allowing access to admin page for login.');
+      // Allow access to admin page for login, but deny API access
+      if (pathname.startsWith('/api/admin')) {
+        return new NextResponse(
+          JSON.stringify({ success: false, message: 'Server configuration error' }),
+          { status: 500, headers: { 'content-type': 'application/json' } }
+        );
+      }
+      return NextResponse.next();
     }
 
     const token = request.cookies.get(COOKIE_NAME)?.value;
