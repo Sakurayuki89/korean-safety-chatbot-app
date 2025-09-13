@@ -22,11 +22,21 @@ export async function GET(req: NextRequest) {
   const stateParam = searchParams.get('state');
   const cookieStore = cookies();
   const storedState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
+  const backupState = cookieStore.get(OAUTH_STATE_COOKIE + '_backup')?.value;
 
-  console.log('[auth/callback] Params received:', { 
+  // Enhanced debugging
+  console.log('[auth/callback] Full debug info:', { 
     hasCode: !!code, 
     hasState: !!stateParam, 
-    hasStoredState: !!storedState 
+    hasStoredState: !!storedState,
+    hasBackupState: !!backupState,
+    stateParam: stateParam,
+    storedState: storedState,
+    backupState: backupState,
+    allCookies: Object.fromEntries(
+      cookieStore.getAll().map(cookie => [cookie.name, cookie.value])
+    ),
+    requestHeaders: Object.fromEntries(req.headers.entries())
   });
 
   if (!code) {
@@ -34,8 +44,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
   }
 
-  if (!stateParam || !storedState) {
-    console.log('[auth/callback] State parameter or cookie is missing');
+  // Check both primary and backup state cookies
+  const finalStoredState = storedState || backupState;
+  
+  if (!stateParam || !finalStoredState) {
+    console.log('[auth/callback] State parameter or cookie is missing', {
+      hasStateParam: !!stateParam,
+      hasStoredState: !!storedState,
+      hasBackupState: !!backupState,
+      finalStoredState: !!finalStoredState
+    });
     return NextResponse.json({ error: 'State parameter or cookie is missing' }, { status: 400 });
   }
 
@@ -54,10 +72,12 @@ export async function GET(req: NextRequest) {
   console.log('[auth/callback] Comparing states:', { 
     receivedState: stateParam, 
     storedState: storedState,
-    match: stateParam === storedState 
+    backupState: backupState,
+    finalStoredState: finalStoredState,
+    match: stateParam === finalStoredState 
   });
   
-  if (stateParam !== storedState) {
+  if (stateParam !== finalStoredState) {
     console.log('[auth/callback] CSRF check failed - state mismatch');
     return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
   }
@@ -80,8 +100,9 @@ export async function GET(req: NextRequest) {
       sameSite: 'none'
     });
 
-    // Clear the state cookie now that it has been used
+    // Clear both state cookies now that they have been used
     cookieStore.delete(OAUTH_STATE_COOKIE);
+    cookieStore.delete(OAUTH_STATE_COOKIE + '_backup');
 
     // Redirect user back to the original page
     const redirectUrl = new URL(returnPath || '/', req.url);

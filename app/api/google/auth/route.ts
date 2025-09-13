@@ -31,25 +31,45 @@ export async function GET(req: NextRequest) {
     const maxAge = 60 * 5; // 5 minutes
 
     const cookieStore = cookies();
-    cookieStore.set(OAUTH_STATE_COOKIE, stateString, {
+    const cookieOptions = {
       httpOnly: true,
       secure: true, // sameSite: 'none' requires secure: true
       maxAge: maxAge,
       path: '/',
-      sameSite: 'none'
-    });
+      sameSite: 'none' as const
+    };
     
-    console.log('[auth] Set state cookie with nonce:', nonce);
+    cookieStore.set(OAUTH_STATE_COOKIE, stateString, cookieOptions);
+    
+    console.log('[auth] Set state cookie:', {
+      name: OAUTH_STATE_COOKIE,
+      value: stateString,
+      options: cookieOptions,
+      nonce: nonce
+    });
 
     const authorizationUrl = getAuthorizationUrl(stateString, req);
     console.log('[auth] Generated authorization URL');
 
-    // Return both auth URL and state for backup storage
-    return NextResponse.json({ 
+    // Store state in response headers as well for debugging
+    const response = NextResponse.json({ 
       authUrl: authorizationUrl,
       state: stateString,
       nonce: nonce
     });
+    
+    // Set additional cookie with different settings for testing
+    response.cookies.set(OAUTH_STATE_COOKIE + '_backup', stateString, {
+      httpOnly: true,
+      secure: true,
+      maxAge: maxAge,
+      path: '/',
+      sameSite: 'lax' // Try with lax as backup
+    });
+    
+    console.log('[auth] Set backup cookie with lax sameSite');
+    
+    return response;
 
   } catch (error) {
     console.error('Error during Google Auth initiation:', error);
