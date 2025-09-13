@@ -1,35 +1,54 @@
 
-import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6';
-const COOKIE_NAME = 'admin-token';
+export const dynamic = 'force-dynamic';
 
-export async function GET() {
-  if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not set in environment variables.');
-    // In this case, we can't verify any token, so the user is not authenticated.
-    return NextResponse.json({ isAuthenticated: false });
-  }
+const GOOGLE_TOKEN_COOKIE = 'google_token';
 
+export async function GET(req: NextRequest) {
   try {
+    console.log('[auth/status] Checking authentication status...');
+    
     const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME);
-
-    if (!token) {
+    const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE);
+    
+    if (!tokenCookie || !tokenCookie.value) {
+      console.log('[auth/status] No Google token cookie found');
       return NextResponse.json({ isAuthenticated: false });
     }
-
-    // Verify the token
-    jwt.verify(token.value, JWT_SECRET);
-
-    // If verification is successful, the user is authenticated
-    return NextResponse.json({ isAuthenticated: true });
-
+    
+    try {
+      const tokens = JSON.parse(tokenCookie.value);
+      console.log('[auth/status] Google token found, checking validity...');
+      
+      // Basic token structure validation
+      if (!tokens.access_token) {
+        console.log('[auth/status] No access token in cookie');
+        return NextResponse.json({ isAuthenticated: false });
+      }
+      
+      // Check if token is expired (if expiry info is available)
+      if (tokens.expiry_date && tokens.expiry_date < Date.now()) {
+        console.log('[auth/status] Token expired');
+        return NextResponse.json({ isAuthenticated: false });
+      }
+      
+      console.log('[auth/status] User is authenticated with Google OAuth');
+      return NextResponse.json({ 
+        isAuthenticated: true,
+        tokenExists: true,
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token
+      });
+      
+    } catch (parseError) {
+      console.error('[auth/status] Error parsing Google token cookie:', parseError);
+      return NextResponse.json({ isAuthenticated: false });
+    }
+    
   } catch (error) {
-    // If verification fails (e.g., token expired, invalid signature), the user is not authenticated.
-    console.log('Auth status check failed:', error);
+    console.error('[auth/status] Error checking authentication status:', error);
     return NextResponse.json({ isAuthenticated: false });
   }
 }

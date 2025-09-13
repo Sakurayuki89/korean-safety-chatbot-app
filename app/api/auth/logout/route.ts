@@ -1,24 +1,32 @@
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const COOKIE_NAME = 'admin-token';
+export const dynamic = 'force-dynamic';
 
-export async function POST() {
+const GOOGLE_TOKEN_COOKIE = 'google_token';
+
+export async function POST(req: NextRequest) {
   try {
-    // Clear the cookie by setting its maxAge to 0
+    console.log('[auth/logout] Processing logout request...');
+    
     const cookieStore = await cookies();
-    cookieStore.set(COOKIE_NAME, '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: 0,
+    
+    // Clear the Google OAuth token cookie
+    cookieStore.delete(GOOGLE_TOKEN_COOKIE);
+    
+    console.log('[auth/logout] Google OAuth token cleared');
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Successfully logged out' 
     });
-
-    return NextResponse.json({ success: true }, { status: 200 });
+    
   } catch (error) {
-    console.error('Logout error:', error);
-    return NextResponse.json({ error: '로그아웃 처리 중 오류 발생' }, { status: 500 });
+    console.error('[auth/logout] Error during logout:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Logout failed' 
+    }, { status: 500 });
   }
 }
