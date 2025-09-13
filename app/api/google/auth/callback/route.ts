@@ -50,26 +50,49 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
   }
 
-  // Check all possible state cookies
+  // Check all possible state cookies OR use stateless mode
   const finalStoredState = storedState || noneState || laxSecureState || laxInsecureState;
   
-  if (!stateParam || !finalStoredState) {
-    console.log('[auth/callback] State parameter or cookie is missing', {
-      hasStateParam: !!stateParam,
-      hasStoredState: !!storedState,
-      hasNoneState: !!noneState,
-      hasLaxSecureState: !!laxSecureState,
-      hasLaxInsecureState: !!laxInsecureState,
-      finalStoredState: !!finalStoredState,
-      whichCookieWorked: finalStoredState === storedState ? 'original' : 
-                        finalStoredState === noneState ? 'sameSite_none' :
-                        finalStoredState === laxSecureState ? 'sameSite_lax_secure' :
-                        finalStoredState === laxInsecureState ? 'sameSite_lax_insecure' : 'none'
-    });
-    return NextResponse.json({ error: 'State parameter or cookie is missing' }, { status: 400 });
+  if (!stateParam) {
+    console.log('[auth/callback] State parameter is missing');
+    return NextResponse.json({ error: 'State parameter is missing' }, { status: 400 });
   }
 
-  let state: { nonce: string; returnPath: string };
+  // If no cookies are available, use stateless validation
+  if (!finalStoredState) {
+    console.log('[auth/callback] No cookies available, attempting stateless validation');
+    
+    // Parse state for timestamp validation
+    let state: { nonce?: string; returnPath?: string; timestamp?: number };
+    try {
+      state = JSON.parse(Buffer.from(stateParam, 'base64').toString('utf8'));
+      
+      // Check if state has timestamp (stateless mode)
+      if (state.timestamp) {
+        const now = Date.now();
+        const maxAge = 10 * 60 * 1000; // 10 minutes
+        if (now - state.timestamp > maxAge) {
+          console.log('[auth/callback] Stateless state has expired:', { 
+            timestamp: state.timestamp, 
+            now, 
+            age: now - state.timestamp, 
+            maxAge 
+          });
+          return NextResponse.json({ error: 'Authentication state has expired. Please try again.' }, { status: 400 });
+        }
+        console.log('[auth/callback] Stateless validation passed');
+      } else {
+        // Old state format without timestamp, reject
+        console.log('[auth/callback] Old state format without cookies - failing');
+        return NextResponse.json({ error: 'State parameter or cookie is missing' }, { status: 400 });
+      }
+    } catch (error) {
+      console.log('[auth/callback] Failed to parse state for stateless validation:', error);
+      return NextResponse.json({ error: 'Invalid state format.' }, { status: 400 });
+    }
+  }
+
+  let state: { nonce?: string; returnPath: string; timestamp?: number };
   try {
     state = JSON.parse(Buffer.from(stateParam, 'base64').toString('utf8'));
     console.log('[auth/callback] Decoded state:', state);
@@ -81,25 +104,31 @@ export async function GET(req: NextRequest) {
   const { nonce, returnPath } = state;
 
   // --- CSRF Protection ---
-  const whichCookieWorked = finalStoredState === storedState ? 'original' : 
-                           finalStoredState === noneState ? 'sameSite_none' :
-                           finalStoredState === laxSecureState ? 'sameSite_lax_secure' :
-                           finalStoredState === laxInsecureState ? 'sameSite_lax_insecure' : 'unknown';
-  
-  console.log('[auth/callback] Comparing states:', { 
-    receivedState: stateParam, 
-    storedState: storedState,
-    noneState: noneState,
-    laxSecureState: laxSecureState,
-    laxInsecureState: laxInsecureState,
-    finalStoredState: finalStoredState,
-    whichCookieWorked: whichCookieWorked,
-    match: stateParam === finalStoredState 
-  });
-  
-  if (stateParam !== finalStoredState) {
-    console.log('[auth/callback] CSRF check failed - state mismatch');
-    return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
+  if (finalStoredState) {
+    // Cookie-based validation
+    const whichCookieWorked = finalStoredState === storedState ? 'original' : 
+                             finalStoredState === noneState ? 'sameSite_none' :
+                             finalStoredState === laxSecureState ? 'sameSite_lax_secure' :
+                             finalStoredState === laxInsecureState ? 'sameSite_lax_insecure' : 'unknown';
+    
+    console.log('[auth/callback] Comparing states (cookie mode):', { 
+      receivedState: stateParam, 
+      storedState: storedState,
+      noneState: noneState,
+      laxSecureState: laxSecureState,
+      laxInsecureState: laxInsecureState,
+      finalStoredState: finalStoredState,
+      whichCookieWorked: whichCookieWorked,
+      match: stateParam === finalStoredState 
+    });
+    
+    if (stateParam !== finalStoredState) {
+      console.log('[auth/callback] CSRF check failed - state mismatch');
+      return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
+    }
+  } else {
+    // Stateless mode - already validated timestamp above
+    console.log('[auth/callback] Using stateless mode - no cookie validation needed');
   }
   
   console.log('[auth/callback] CSRF check passed');
@@ -120,13 +149,16 @@ export async function GET(req: NextRequest) {
       sameSite: 'none'
     });
 
-    // Clear all state cookies now that they have been used
-    cookieStore.delete(OAUTH_STATE_COOKIE);
-    cookieStore.delete(OAUTH_STATE_COOKIE + '_none');
-    cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_secure');
-    cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_insecure');
-    
-    console.log('[auth/callback] Successfully used cookie:', whichCookieWorked);
+    // Clear all state cookies if they were used
+    if (finalStoredState) {
+      cookieStore.delete(OAUTH_STATE_COOKIE);
+      cookieStore.delete(OAUTH_STATE_COOKIE + '_none');
+      cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_secure');
+      cookieStore.delete(OAUTH_STATE_COOKIE + '_lax_insecure');
+      console.log('[auth/callback] Cleared state cookies');
+    } else {
+      console.log('[auth/callback] No cookies to clear (stateless mode)');
+    }
 
     // Redirect user back to the original page
     const redirectUrl = new URL(returnPath || '/', req.url);
