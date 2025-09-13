@@ -17,6 +17,8 @@ const AnnouncementManager = () => {
   const [priority, setPriority] = useState<'important' | 'normal'>('normal');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
 
   const fetchAnnouncements = useCallback(async () => {
     const res = await fetch(`/api/announcements?search=${searchTerm}`);
@@ -62,6 +64,71 @@ const AnnouncementManager = () => {
     setPriority('normal');
   };
 
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(announcements.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAnnouncements = announcements.sort((a, b) => b.id - a.id).slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    
+    const pageButtons = [];
+    
+    // 이전 버튼
+    pageButtons.push(
+      <button
+        key="prev"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-sm"
+      >
+        이전
+      </button>
+    );
+
+    // 페이지 번호 버튼들
+    for (let i = 1; i <= totalPages; i++) {
+      pageButtons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-1 rounded-md text-sm ${
+            currentPage === i 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-600 hover:bg-gray-500 text-gray-200'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // 다음 버튼
+    pageButtons.push(
+      <button
+        key="next"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-sm"
+      >
+        다음
+      </button>
+    );
+
+    return (
+      <div className="flex justify-center items-center space-x-2 mt-6">
+        {pageButtons}
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
@@ -100,7 +167,7 @@ const AnnouncementManager = () => {
           />
         </div>
         <div className="space-y-4">
-          {announcements.sort((a, b) => b.id - a.id).map((ann) => (
+          {currentAnnouncements.map((ann) => (
             <div key={ann.id} className="p-4 bg-gray-700 rounded-md flex justify-between items-start">
               <div>
                 <div className="flex items-center mb-1">
@@ -117,6 +184,10 @@ const AnnouncementManager = () => {
             </div>
           ))}
         </div>
+        {announcements.length === 0 && (
+          <p className="text-center text-gray-400 mt-4">공지사항이 없습니다.</p>
+        )}
+        {renderPagination()}
       </div>
     </>
   );
