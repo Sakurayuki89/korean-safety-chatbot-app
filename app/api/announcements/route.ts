@@ -9,6 +9,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const searchTerm = searchParams.get('search');
 
+    // Return empty array if MongoDB is not configured
+    if (!process.env.MONGODB_URI) {
+      console.log('[announcements] MongoDB not configured, returning empty array');
+      return NextResponse.json([]);
+    }
+
     const client = await getMongoClient();
     const db = client.db(DB_NAME);
     
