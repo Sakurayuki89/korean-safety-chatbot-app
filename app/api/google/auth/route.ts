@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const cookieStore = cookies();
     cookieStore.set(OAUTH_STATE_COOKIE, nonce, {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
+      secure: true, // sameSite: 'none' requires secure: true
       maxAge: maxAge,
       path: '/',
       sameSite: 'none'
@@ -44,7 +44,12 @@ export async function GET(req: NextRequest) {
     const authorizationUrl = getAuthorizationUrl(stateString, req);
     console.log('[auth] Generated authorization URL');
 
-    return NextResponse.json({ authUrl: authorizationUrl });
+    // Return both auth URL and state for backup storage
+    return NextResponse.json({ 
+      authUrl: authorizationUrl,
+      state: stateString,
+      nonce: nonce
+    });
 
   } catch (error) {
     console.error('Error during Google Auth initiation:', error);

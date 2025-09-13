@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     console.log('[auth/callback] Storing tokens in cookie...');
     cookieStore.set(GOOGLE_TOKEN_COOKIE, JSON.stringify(tokens), {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
+      secure: true, // sameSite: 'none' requires secure: true
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
       sameSite: 'none'
