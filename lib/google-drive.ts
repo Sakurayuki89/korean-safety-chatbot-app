@@ -98,6 +98,45 @@ export const getTokens = async (code: string, req?: Request) => {
 };
 
 /**
+ * Validates and refreshes access token if needed
+ */
+export const validateAndRefreshToken = async (tokens: any) => {
+  const oauth2Client = getOAuth2Client();
+  oauth2Client.setCredentials(tokens);
+  
+  try {
+    // Check if token is valid by making a simple API call
+    const tokenInfo = await oauth2Client.getTokenInfo(tokens.access_token);
+    
+    // If token expires within 5 minutes, refresh it
+    const expiresIn = tokenInfo.expiry_date ? tokenInfo.expiry_date - Date.now() : 0;
+    if (expiresIn < 5 * 60 * 1000) { // 5 minutes in milliseconds
+      console.log('[google-drive] Token expires soon, refreshing...');
+      const { credentials } = await oauth2Client.refreshAccessToken();
+      return credentials;
+    }
+    
+    return tokens;
+  } catch (error) {
+    console.error('[google-drive] Token validation failed:', error);
+    
+    // Try to refresh the token
+    if (tokens.refresh_token) {
+      try {
+        console.log('[google-drive] Attempting to refresh token...');
+        const { credentials } = await oauth2Client.refreshAccessToken();
+        return credentials;
+      } catch (refreshError) {
+        console.error('[google-drive] Token refresh failed:', refreshError);
+        throw new Error('Authentication required: Token expired and refresh failed');
+      }
+    }
+    
+    throw new Error('Authentication required: Invalid token and no refresh token available');
+  }
+};
+
+/**
  * Creates an authenticated Google Drive API client.
  */
 export const getDriveClient = (accessToken: string) => {

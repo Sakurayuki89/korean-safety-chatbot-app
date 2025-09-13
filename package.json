@@ -10,7 +10,9 @@
     "lint": "eslint",
     "clean-port": "lsof -ti:3000 | xargs -r kill -9 || echo 'Port 3000 is clean'",
     "check-port": "lsof -i:3000 || echo 'Port 3000 is available'",
-    "kill-dev": "pkill -f 'next-server' || pkill -f 'next dev' || echo 'No dev server running'"
+    "kill-dev": "pkill -f 'next-server' || pkill -f 'next dev' || echo 'No dev server running'",
+    "security-check": "node scripts/security-check.js",
+    "pre-deploy": "npm run security-check && npm run build"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
