@@ -84,7 +84,7 @@ const NoticeBoard: React.FC = () => {
         </div>
         {isExpanded && (
           <div className="notice-content">
-            <p>{notice.content}</p>
+            <div className="notice-content-text">{notice.content}</div>
           </div>
         )}
       </div>

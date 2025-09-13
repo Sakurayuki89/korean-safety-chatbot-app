@@ -51,9 +51,13 @@ const ChatWidget = () => {
   }, [announcements]);
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-3 right-3 z-50">
       {isOpen && (
-        <div className="bg-white rounded-lg shadow-xl border w-[400px] h-[600px] flex flex-col">
+        <div className="bg-white rounded-lg shadow-xl border 
+                      w-[400px] h-[600px] 
+                      sm:w-[280px] sm:h-[420px] 
+                      max-w-[85vw] max-h-[85vh]
+                      flex flex-col">
           <ChatContainer contextInfo={contextInfo} />
         </div>
       )}

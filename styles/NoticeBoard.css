@@ -39,7 +39,7 @@
 
 .header-text h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
@@ -95,12 +95,12 @@
 }
 
 .notice-section h2 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   color: #374151;
   border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.375rem;
 }
 
 .notice-list {
@@ -138,7 +138,7 @@
 
 .notice-title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
   line-height: 1.4;
@@ -208,11 +208,13 @@
   }
 }
 
-.notice-content p {
+.notice-content-text {
   margin: 0;
   color: #4b5563;
   line-height: 1.6;
   font-size: 0.875rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* Empty State */
@@ -238,7 +240,7 @@
   }
   
   .header-text h1 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
   
   .header-text p {
@@ -288,11 +290,11 @@
   }
   
   .header-text h1 {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
   
   .notice-section h2 {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
   
   .notice-title-row {
@@ -366,7 +368,9 @@
 }
 
 .section-header h2 {
-  margin-bottom: 0; /* Reset margin from original h2 */
+  margin-bottom: 0;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .inquiry-button {

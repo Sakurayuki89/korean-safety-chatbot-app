@@ -403,8 +403,13 @@ export default function SafetyItemManager() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedItems.map((item) => (
             <div key={item._id} className="bg-gray-700 rounded-lg shadow-lg overflow-hidden flex flex-col">
-              <div className="relative w-full h-48">
-                <Image src={convertGoogleDriveUrl(item.imageUrl)} alt={item.description} fill className="object-cover" />
+              <div className="relative w-full h-48 cursor-pointer" onClick={() => window.open(convertGoogleDriveUrl(item.imageUrl), '_blank')}>
+                <Image src={convertGoogleDriveUrl(item.imageUrl)} alt={item.description} fill className="object-cover hover:opacity-90 transition-opacity" />
+                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+                  <span className="text-white opacity-0 hover:opacity-100 transition-opacity text-sm font-semibold bg-black bg-opacity-50 px-2 py-1 rounded">
+                    🔍 크게 보기
+                  </span>
+                </div>
               </div>
               <div className="p-4 flex flex-col flex-grow">
                 <h3 className="text-lg font-bold text-white">{item.name || 'N/A'}</h3>
