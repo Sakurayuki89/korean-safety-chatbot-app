@@ -54,7 +54,9 @@ export async function GET(req: NextRequest) {
   const { returnPath } = state;
 
   console.log('[auth/callback] Parsed state successfully:', {
-    returnPath: returnPath
+    returnPath: returnPath,
+    stateKeys: Object.keys(state),
+    fullState: state
   });
 
   try {
@@ -78,8 +80,10 @@ export async function GET(req: NextRequest) {
     });
 
     // Redirect user back to the original page
-    const redirectUrl = new URL(returnPath || '/', req.url);
-    console.log('[auth/callback] Redirecting to:', redirectUrl.toString());
+    const baseUrl = new URL(req.url).origin;
+    const redirectPath = returnPath || '/';
+    const redirectUrl = `${baseUrl}${redirectPath.startsWith('/') ? redirectPath : '/' + redirectPath}`;
+    console.log('[auth/callback] Redirecting to:', redirectUrl);
     return NextResponse.redirect(redirectUrl);
 
   } catch (error: unknown) {
