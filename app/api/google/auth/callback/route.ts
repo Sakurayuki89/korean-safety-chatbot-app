@@ -21,12 +21,12 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get('code');
   const stateParam = searchParams.get('state');
   const cookieStore = cookies();
-  const storedNonce = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
+  const storedState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
 
   console.log('[auth/callback] Params received:', { 
     hasCode: !!code, 
     hasState: !!stateParam, 
-    hasStoredNonce: !!storedNonce 
+    hasStoredState: !!storedState 
   });
 
   if (!code) {
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
   }
 
-  if (!stateParam || !storedNonce) {
+  if (!stateParam || !storedState) {
     console.log('[auth/callback] State parameter or cookie is missing');
     return NextResponse.json({ error: 'State parameter or cookie is missing' }, { status: 400 });
   }
@@ -51,14 +51,14 @@ export async function GET(req: NextRequest) {
   const { nonce, returnPath } = state;
 
   // --- CSRF Protection ---
-  console.log('[auth/callback] Comparing nonces:', { 
-    receivedNonce: nonce, 
-    storedNonce: storedNonce,
-    match: nonce === storedNonce 
+  console.log('[auth/callback] Comparing states:', { 
+    receivedState: stateParam, 
+    storedState: storedState,
+    match: stateParam === storedState 
   });
   
-  if (nonce !== storedNonce) {
-    console.log('[auth/callback] CSRF check failed - nonce mismatch');
+  if (stateParam !== storedState) {
+    console.log('[auth/callback] CSRF check failed - state mismatch');
     return NextResponse.json({ error: 'Invalid state parameter. CSRF attack suspected.' }, { status: 400 });
   }
   

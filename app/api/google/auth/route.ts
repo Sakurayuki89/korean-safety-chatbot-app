@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     const maxAge = 60 * 5; // 5 minutes
 
     const cookieStore = cookies();
-    cookieStore.set(OAUTH_STATE_COOKIE, nonce, {
+    cookieStore.set(OAUTH_STATE_COOKIE, stateString, {
       httpOnly: true,
       secure: true, // sameSite: 'none' requires secure: true
       maxAge: maxAge,
