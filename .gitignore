@@ -52,3 +52,4 @@ playwright-report/
 
 # TypeScript Build Info
 *.tsbuildinfo
+.env*.local
