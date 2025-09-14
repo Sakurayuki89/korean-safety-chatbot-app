@@ -4,7 +4,7 @@ import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '7930';
-const JWT_SECRET = process.env.JWT_SECRET || 'b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6';
+const JWT_SECRET = 'b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6';
 const COOKIE_NAME = 'admin-token';
 
 // Debug: Log JWT_SECRET info (temporary)
