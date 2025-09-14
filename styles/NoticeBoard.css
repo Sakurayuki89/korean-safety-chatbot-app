@@ -8,7 +8,7 @@
 
 /* Header Styles */
 .notice-header-main {
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
   color: white;
   padding: 1rem 0;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -29,9 +29,7 @@
   gap: 1rem;
 }
 
-.shield-icon {
-  width: 40px;
-  height: 40px;
+.company-logo {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,41 +232,62 @@
   .notice-content-main {
     padding: 1rem 0.5rem;
   }
-  
+
   .header-content {
     padding: 0 0.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
   }
-  
+
+  .header-left {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .header-right {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+    min-width: auto;
+    max-width: 400px;
+  }
+
   .header-text h1 {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
   }
-  
+
   .header-text p {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
   }
-  
+
   .notice-header {
     padding: 1rem;
   }
-  
+
   .notice-title {
     font-size: 1rem;
   }
-  
+
   .notice-title-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .notice-badge-group {
     align-self: flex-end;
   }
-  
+
   .notice-meta {
     font-size: 0.8125rem;
   }
-  
+
   .notice-content {
     padding: 0 1rem 1rem 1rem;
   }
@@ -278,15 +297,9 @@
   .header-left {
     gap: 0.75rem;
   }
-  
-  .shield-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .shield-icon svg {
-    width: 32px;
-    height: 32px;
+
+  .company-logo {
+    transform: scale(0.8);
   }
   
   .header-text h1 {
@@ -391,7 +404,57 @@
 
 /* 페이지 정보 스타일 */
 .page-info {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-info-single-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.page-stats {
+  flex: 1;
+}
+
+.page-stats p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-actions h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.inquiry-button-compact {
+  background-color: #10b981;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.2s;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.inquiry-button-compact:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
 }
 
 /* 페이지네이션 스타일 */

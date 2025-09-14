@@ -179,14 +179,14 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
                 key={item._id}
                 className={`border-4 rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedItem?._id === item._id ? 'border-blue-500 shadow-xl' : 'border-gray-200 hover:border-blue-300 hover:shadow-md'}`}>
                 {imageErrors.has(item._id) ? (
-                  <div className="w-full h-48 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
+                  <div className="w-full h-64 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
                     <div className="text-gray-500 text-center">
                       <div className="text-4xl mb-2">📷</div>
                       <div className="text-sm">이미지를 불러올 수 없습니다</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full h-48 mb-4 cursor-pointer" onClick={(e) => {
+                  <div className="relative w-full h-64 mb-4 cursor-pointer" onClick={(e) => {
                     e.stopPropagation(); // Prevent selecting the item
                     setModalImageUrl(convertGoogleDriveUrl(item.imageUrl));
                   }}>
@@ -205,8 +205,6 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
                   </div>
                 )}
                 <div className="text-center">
-                  <p className="text-gray-800 font-bold">{item.name || item.description}</p>
-                  
                   {/* 아이템 상태에 따른 UI 표시 */}
                   {(!item.name || item.name === null || (typeof item.name === 'string' && item.name.trim() === '')) ? (
                     // 알림 전용 아이템
@@ -244,7 +242,7 @@ export default function SafetyItemRequest({ onClose }: SafetyItemRequestProps) {
 
         {selectedItem && (
           <form onSubmit={handleSubmit} className="mt-6 pt-6 border-t">
-            <h3 className="text-xl font-bold mb-4 text-gray-800">신청서 작성: <span className='text-blue-600'>{selectedItem.name || selectedItem.description}</span></h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">신청서 작성: <span className='text-blue-600'>N/A</span></h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="userName" className="block text-sm font-medium text-gray-700">

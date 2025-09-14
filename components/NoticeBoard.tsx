@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import './../styles/NoticeBoard.css';
-
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface Announcement {
@@ -184,12 +184,14 @@ const NoticeBoard: React.FC = () => {
        <header className="notice-header-main">
         <div className="header-content">
           <div className="header-left">
-            <div className="shield-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                    <path d="M2 17l10 5 10-5"/>
-                    <path d="M2 12l10 5 10-5"/>
-                </svg>
+            <div className="company-logo">
+                <Image
+                  src="/hyundai-logo.png"
+                  alt="현대 ITC"
+                  width={120}
+                  height={40}
+                  priority
+                />
             </div>
             <div className="header-text">
               <h1>안전종합 게시판</h1>
@@ -221,13 +223,17 @@ const NoticeBoard: React.FC = () => {
               <>
                 {/* 페이지 정보 표시 */}
                 <div className="page-info">
-                  <p className="text-sm text-gray-600 mb-4">
-                    전체 {announcements.length}개 | {currentPage}/{totalPages} 페이지 
-                    {searchTerm && <span className="ml-2 text-blue-600">검색: &quot;{searchTerm}&quot;</span>}
-                  </p>
-                  <div className="section-header">
-                    <h2>공지사항</h2>
-                    <Link href="/contact" className="inquiry-button">문의사항 남기기</Link>
+                  <div className="page-info-single-row">
+                    <div className="page-stats">
+                      <p className="text-sm text-gray-600">
+                        전체 {announcements.length}개 | {currentPage}/{totalPages} 페이지
+                        {searchTerm && <span className="ml-2 text-blue-600">검색: &quot;{searchTerm}&quot;</span>}
+                      </p>
+                    </div>
+                    <div className="page-actions">
+                      <h2>공지사항</h2>
+                      <Link href="/contact" className="inquiry-button-compact">문의사항 남기기</Link>
+                    </div>
                   </div>
                 </div>
 

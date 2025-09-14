@@ -36,10 +36,10 @@ export default function HomePage() {
         </Suspense>
       </div>
 
-      <div className="fixed bottom-8 left-8 z-40">
-        <button 
+      <div className="fixed bottom-3 left-3 z-40">
+        <button
           onClick={() => setIsRequestModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
           aria-label="안전보건용품 신청"
         >
           <Image src="/safety.svg" alt="Safety Item Request" width={32} height={32} priority />
