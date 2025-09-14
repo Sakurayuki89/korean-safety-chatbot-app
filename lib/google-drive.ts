@@ -20,17 +20,22 @@ const SHEETS_SUBFOLDER = 'sheets';
 
 // --- OAuth 2.0 Configuration ---
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com';
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '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';
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://korean-safety-chatbot.vercel.app/api/google/auth/callback';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
 // Only check credentials when functions are actually called, not at import time
 function validateCredentials() {
   console.log('[google-drive] Validating credentials...');
   console.log('[google-drive] CLIENT_ID exists:', !!GOOGLE_CLIENT_ID);
   console.log('[google-drive] CLIENT_SECRET exists:', !!GOOGLE_CLIENT_SECRET);
-  console.log('[google-drive] REDIRECT_URI:', GOOGLE_REDIRECT_URI);
+  console.log('[google-drive] REDIRECT_URI exists:', !!GOOGLE_REDIRECT_URI);
+  console.log('[google-drive] REDIRECT_URI value:', GOOGLE_REDIRECT_URI);
   console.log('[google-drive] CLIENT_ID (first 20 chars):', GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
+
+  // 🚨 DEBUG: Log full values for troubleshooting (REMOVE after fixing)
+  console.log('[google-drive] 🚨 DEBUG - FULL CLIENT_ID:', GOOGLE_CLIENT_ID);
+  console.log('[google-drive] 🚨 DEBUG - FULL REDIRECT_URI:', GOOGLE_REDIRECT_URI);
   
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     throw new Error('Google OAuth credentials (CLIENT_ID, CLIENT_SECRET) are not configured');
