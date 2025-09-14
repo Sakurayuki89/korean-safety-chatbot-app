@@ -22,7 +22,7 @@ const SHEETS_SUBFOLDER = 'sheets';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '482118156786-hii1drd4icgnf1vk6crnnank8a2k18bg.apps.googleusercontent.com';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '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';
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://korean-safety-chatbot.vercel.app/api/google/auth/callback';
 
 // Only check credentials when functions are actually called, not at import time
 function validateCredentials() {
@@ -67,15 +67,15 @@ export const getOAuth2Client = (req?: Request): OAuth2Client => {
   // Always use production URL for korean-safety-chatbot-app.vercel.app
   if (req) {
     const host = req.headers.get ? req.headers.get('host') : new URL(req.url).host;
-    if (host === 'korean-safety-chatbot-app.vercel.app') {
-      redirectUri = 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
+    if (host === 'korean-safety-chatbot.vercel.app') {
+      redirectUri = 'https://korean-safety-chatbot.vercel.app/api/google/auth/callback';
       console.log('[google-drive] Using production redirect URI for production domain');
     }
   }
   
   // Force correct production URL if environment variable is wrong
   if (redirectUri && redirectUri.includes('git-main-sakurayuki89s-projects')) {
-    redirectUri = 'https://korean-safety-chatbot-app.vercel.app/api/google/auth/callback';
+    redirectUri = 'https://korean-safety-chatbot.vercel.app/api/google/auth/callback';
     console.log('[google-drive] Fixed incorrect git branch redirect URI to production URL');
   }
   

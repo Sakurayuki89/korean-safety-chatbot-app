@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 const GOOGLE_TOKEN_COOKIE = 'google_token';
+const ADMIN_COOKIE_NAME = 'admin-token';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,10 +13,11 @@ export async function POST(req: NextRequest) {
     
     const cookieStore = await cookies();
     
-    // Clear the Google OAuth token cookie
+    // Clear both Google OAuth token and admin JWT token cookies
     cookieStore.delete(GOOGLE_TOKEN_COOKIE);
-    
-    console.log('[auth/logout] Google OAuth token cleared');
+    cookieStore.delete(ADMIN_COOKIE_NAME);
+
+    console.log('[auth/logout] Both Google OAuth and admin JWT tokens cleared');
     
     return NextResponse.json({ 
       success: true, 

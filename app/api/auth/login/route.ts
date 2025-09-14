@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '7930';
@@ -18,12 +18,13 @@ export async function POST(request: Request) {
 
     // Use a simple string comparison. For high-security, use a timing-safe comparison.
     if (password === ADMIN_PASSWORD) {
-      // Password is correct, create a JWT
-      const token = jwt.sign(
-        { isAdmin: true, iat: Math.floor(Date.now() / 1000) },
-        JWT_SECRET,
-        { expiresIn: '8h' } // Token expires in 8 hours
-      );
+      // Password is correct, create a JWT using jose for Edge Runtime compatibility
+      const secretKey = new TextEncoder().encode(JWT_SECRET);
+      const token = await new SignJWT({ isAdmin: true })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('8h')
+        .sign(secretKey);
 
       // Set the token in an HttpOnly cookie
       const cookieStore = await cookies();
