@@ -11,27 +11,13 @@ const GOOGLE_TOKEN_COOKIE = 'google_token';
 
 export async function GET() {
   try {
-    console.log('[GET /api/admin/safety-items] Checking authentication status.');
-    const cookieStore = await cookies();
-    const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE)?.value;
-    
-    if (!tokenCookie) {
-      console.log('[GET /api/admin/safety-items] No token found.');
-      return NextResponse.json({ authenticated: false }, { status: 401 });
-    }
-    
-    const { access_token } = JSON.parse(tokenCookie);
-    if (!access_token) {
-      console.log('[GET /api/admin/safety-items] Invalid token.');
-      return NextResponse.json({ authenticated: false }, { status: 401 });
-    }
-    
+    console.log('[GET /api/admin/safety-items] Authentication already handled by middleware.');
     console.log('[GET /api/admin/safety-items] Authentication successful.');
     return NextResponse.json({ authenticated: true });
-    
+
   } catch (error) {
     console.error('[GET /api/admin/safety-items] Error:', error);
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false }, { status: 500 });
   }
 }
 
