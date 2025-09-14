@@ -8,9 +8,10 @@ const GOOGLE_TOKEN_COOKIE = 'google_token';
 const JWT_SECRET = 'b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6';
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
-// Debug: Log JWT_SECRET info (temporary)
+// Debug: Log JWT_SECRET info (temporary) - FIXED
 console.log('[middleware] JWT_SECRET length:', JWT_SECRET.length);
 console.log('[middleware] JWT_SECRET first 10 chars:', JWT_SECRET.substring(0, 10));
+console.log('[middleware] JWT_SECRET is hardcoded now!');
 
 // --- Helper Functions ---
 async function verifyGoogleToken(tokenString: string): Promise<boolean> {
