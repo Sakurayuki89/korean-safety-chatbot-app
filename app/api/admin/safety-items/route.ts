@@ -30,20 +30,23 @@ async function fileToStream(file: File): Promise<Readable> {
 export async function POST(req: NextRequest) {
   console.log('[POST /api/admin/safety-items] Received request.');
   try {
-    // 1. Get Access Token
-    console.log('[POST /api/admin/safety-items] Step 1: Getting access token from cookie.');
+    // 1. JWT Authentication already handled by middleware
+    console.log('[POST /api/admin/safety-items] Authentication already handled by middleware.');
+
+    // 2. Get Google Access Token (for Google Drive operations)
+    console.log('[POST /api/admin/safety-items] Step 1: Getting Google access token from cookie.');
     const cookieStore = await cookies();
     const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE)?.value;
     if (!tokenCookie) {
-      console.error('[POST /api/admin/safety-items] Error: Google token cookie not found.');
-      return NextResponse.json({ error: '인증되지 않았습니다. 관리자 로그인이 필요합니다.' }, { status: 401 });
+      console.error('[POST /api/admin/safety-items] Error: Google OAuth required for file upload.');
+      return NextResponse.json({ error: 'Google OAuth 로그인이 필요합니다. 파일 업로드를 위해 Google 계정 연동이 필요합니다.' }, { status: 403 });
     }
     const { access_token } = JSON.parse(tokenCookie);
     if (!access_token) {
-        console.error('[POST /api/admin/safety-items] Error: Access token not found in cookie.');
-        return NextResponse.json({ error: '유효하지 않은 인증 토큰입니다.' }, { status: 401 });
+        console.error('[POST /api/admin/safety-items] Error: Google access token not found.');
+        return NextResponse.json({ error: 'Google OAuth 토큰이 유효하지 않습니다.' }, { status: 403 });
     }
-    console.log('[POST /api/admin/safety-items] Step 1: Access token retrieved successfully.');
+    console.log('[POST /api/admin/safety-items] Step 1: Google access token retrieved successfully.');
 
     // 2. Parse Form Data
     console.log('[POST /api/admin/safety-items] Step 2: Parsing form data.');
@@ -147,20 +150,23 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   console.log('[DELETE /api/admin/safety-items] Received request.');
   try {
-    // 1. Get Access Token
-    console.log('[DELETE /api/admin/safety-items] Step 1: Getting access token from cookie.');
+    // 1. JWT Authentication already handled by middleware
+    console.log('[DELETE /api/admin/safety-items] Authentication already handled by middleware.');
+
+    // 2. Get Google Access Token (for Google Drive operations)
+    console.log('[DELETE /api/admin/safety-items] Step 1: Getting Google access token from cookie.');
     const cookieStore = await cookies();
     const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE)?.value;
     if (!tokenCookie) {
-      console.error('[DELETE /api/admin/safety-items] Error: Google token cookie not found.');
-      return NextResponse.json({ error: '인증되지 않았습니다. 관리자 로그인이 필요합니다.' }, { status: 401 });
+      console.error('[DELETE /api/admin/safety-items] Error: Google OAuth required for file deletion.');
+      return NextResponse.json({ error: 'Google OAuth 로그인이 필요합니다. 파일 삭제를 위해 Google 계정 연동이 필요합니다.' }, { status: 403 });
     }
     const { access_token } = JSON.parse(tokenCookie);
     if (!access_token) {
-        console.error('[DELETE /api/admin/safety-items] Error: Access token not found in cookie.');
-        return NextResponse.json({ error: '유효하지 않은 인증 토큰입니다.' }, { status: 401 });
+        console.error('[DELETE /api/admin/safety-items] Error: Google access token not found.');
+        return NextResponse.json({ error: 'Google OAuth 토큰이 유효하지 않습니다.' }, { status: 403 });
     }
-    console.log('[DELETE /api/admin/safety-items] Step 1: Access token retrieved successfully.');
+    console.log('[DELETE /api/admin/safety-items] Step 1: Google access token retrieved successfully.');
 
     // 2. Parse Request Body
     const { id, googleFileId } = await req.json();
