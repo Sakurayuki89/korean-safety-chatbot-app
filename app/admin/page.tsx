@@ -23,8 +23,11 @@ const DynamicInquiryManager = dynamic(() => import('@/components/admin/InquiryMa
 const DynamicSafetyItemManager = dynamic(() => import('@/components/admin/SafetyItemManager'), { 
   loading: () => <LoadingSpinner /> 
 });
-const DynamicItemRequestManager = dynamic(() => import('@/components/admin/ItemRequestManager'), { 
-  loading: () => <LoadingSpinner /> 
+const DynamicItemRequestManager = dynamic(() => import('@/components/admin/ItemRequestManager'), {
+  loading: () => <LoadingSpinner />
+});
+const DynamicQrGenerator = dynamic(() => import('../admin/qr/page'), {
+  loading: () => <LoadingSpinner />
 });
 
 // Main Admin Page Component
@@ -90,6 +93,7 @@ export default function AdminPage() {
       case 'inquiries': return <DynamicInquiryManager />;
       case 'safety-items': return <DynamicSafetyItemManager />;
       case 'item-requests': return <DynamicItemRequestManager />;
+      case 'qr': return <DynamicQrGenerator />;
       default: return null;
     }
   };
@@ -247,6 +251,7 @@ export default function AdminPage() {
           <button onClick={() => setActiveTab('inquiries')} className={`${activeTab === 'inquiries' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>문의사항 관리</button>
           <button onClick={() => setActiveTab('safety-items')} className={`${activeTab === 'safety-items' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>안전보건용품 관리</button>
           <button onClick={() => setActiveTab('item-requests')} className={`${activeTab === 'item-requests' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>용품 신청 내역</button>
+          <button onClick={() => setActiveTab('qr')} className={`${activeTab === 'qr' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>📱 QR 생성기</button>
         </nav>
       </div>
 
