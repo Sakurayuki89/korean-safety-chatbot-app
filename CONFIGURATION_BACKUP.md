@@ -10,7 +10,7 @@
 - ✅ `middleware.ts` - Next.js 미들웨어 설정
 
 ### 환경변수 설정
-- ✅ `.env.template` - 환경변수 구조 템플릿
+- ✅ `.env.example` - 환경변수 구조 템플릿 (통합)
 - 🔒 `.env.local` - 실제 환경변수 (별도 보안 저장)
 
 ### 개발 도구 설정
@@ -44,7 +44,7 @@ npm install
 
 ### 2. 환경변수 설정
 ```bash
-cp .env.template .env.local
+cp .env.example .env.local
 # .env.local 파일을 편집하여 실제 값 입력
 ```
 

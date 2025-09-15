@@ -614,7 +614,7 @@ server {
 
 #### 프로덕션 환경 변수
 ```bash
-# .env.production
+# Production Environment (설정 예시 - Vercel/플랫폼에서 직접 설정)
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 
@@ -756,7 +756,7 @@ fi
 docker pull your-registry/korean-safety-chatbot:$PREVIOUS_VERSION
 docker stop korean-safety-chatbot
 docker run -d --name korean-safety-chatbot \
-  --env-file .env.production \
+  --env-file .env.local \
   -p 3003:3003 \
   your-registry/korean-safety-chatbot:$PREVIOUS_VERSION
 

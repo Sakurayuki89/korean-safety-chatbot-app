@@ -180,7 +180,7 @@ npm run start
 - **정적 페이지**: 19/19 생성 완료
 
 ### ✅ 설정 백업
-- **환경변수**: `.env.template` 생성
+- **환경변수**: `.env.example` 유지 (통합 템플릿)
 - **설정 가이드**: `CONFIGURATION_BACKUP.md` 생성
 - **복원 절차**: 상세 문서화 완료
 

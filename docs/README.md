@@ -239,7 +239,7 @@ docker-compose up -d
 
 # 프로덕션 빌드 및 실행
 docker build -t korean-safety-chatbot .
-docker run -p 3003:3003 --env-file .env.production korean-safety-chatbot
+docker run -p 3003:3003 --env-file .env.local korean-safety-chatbot
 ```
 
 ---
