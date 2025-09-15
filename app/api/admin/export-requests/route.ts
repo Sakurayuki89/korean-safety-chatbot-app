@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { getMongoClient } from '@/lib/mongodb';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,26 +31,36 @@ export async function POST() {
       '상태': request.status || '신청완료',
     }));
 
-    // 3. XLSX 워크시트 생성
-    console.log('[POST /api/admin/export-requests] Step 3: Creating XLSX worksheet.');
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    // 3. ExcelJS 워크북 및 워크시트 생성
+    console.log('[POST /api/admin/export-requests] Step 3: Creating ExcelJS workbook.');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('신청 내역');
 
-    // 컬럼 너비 설정
-    worksheet['!cols'] = [
-      { wch: 5 },   // 번호
-      { wch: 20 }, // 신청일
-      { wch: 15 }, // 신청자명
-      { wch: 25 }, // 용품명
-      { wch: 10 }, // 사이즈
-      { wch: 12 }, // 상태
+    // 컬럼 헤더 및 너비 설정
+    worksheet.columns = [
+      { header: '번호', key: 'number', width: 5 },
+      { header: '신청일', key: 'requestDate', width: 20 },
+      { header: '신청자명', key: 'userName', width: 15 },
+      { header: '용품명', key: 'itemName', width: 25 },
+      { header: '사이즈', key: 'itemSize', width: 10 },
+      { header: '상태', key: 'status', width: 12 },
     ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, '신청 내역');
+    // 데이터 추가
+    dataToExport.forEach((item) => {
+      worksheet.addRow({
+        number: item['번호'],
+        requestDate: item['신청일'],
+        userName: item['신청자명'],
+        itemName: item['용품명'],
+        itemSize: item['사이즈'],
+        status: item['상태'],
+      });
+    });
 
     // 4. 파일 버퍼 생성
     console.log('[POST /api/admin/export-requests] Step 4: Writing workbook to buffer.');
-    const buf = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+    const buf = await workbook.xlsx.writeBuffer();
 
     // 5. 다운로드를 위한 Response 생성
     console.log('[POST /api/admin/export-requests] Step 5: Sending file response to client.');
