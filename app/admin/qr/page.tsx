@@ -77,7 +77,7 @@ export default function QrCodeGenerator() {
                 <h3 className="font-semibold mb-2">🔐 보안 주의사항</h3>
                 <ul className="text-sm space-y-1 text-left">
                   <li>• 생성된 QR 코드는 관계자만 스캔하도록 안내하세요</li>
-                  <li>• 현장에 부착 시 "관계자 외 스캔 금지" 안내문을 추가하세요</li>
+                  <li>• 현장에 부착 시 &quot;관계자 외 스캔 금지&quot; 안내문을 추가하세요</li>
                   <li>• QR 코드 내용이 민감한 정보인 경우 접근 제한을 설정하세요</li>
                 </ul>
               </div>
