@@ -35,6 +35,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Block debug and test routes in production
+  if (process.env.NODE_ENV === 'production') {
+    if (pathname.startsWith('/api/debug') ||
+        pathname.startsWith('/api/test') ||
+        pathname.startsWith('/debug-')) {
+      return new NextResponse(
+        JSON.stringify({
+          success: false,
+          message: 'Debug endpoints are not available in production'
+        }),
+        { status: 404, headers: { 'content-type': 'application/json' } }
+      );
+    }
+  }
+
   // Protect admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     // Allow login API to be accessed publicly
@@ -87,5 +102,12 @@ export async function middleware(request: NextRequest) {
 
 // --- Config ---
 export const config = {
-  matcher: ['/admin', '/admin/:path*', '/api/admin/:path*'],
+  matcher: [
+    '/admin',
+    '/admin/:path*',
+    '/api/admin/:path*',
+    '/api/debug/:path*',
+    '/api/test-:path*',
+    '/debug-:path*'
+  ],
 };
