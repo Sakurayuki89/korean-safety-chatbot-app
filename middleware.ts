@@ -5,13 +5,12 @@ import { jwtVerify } from 'jose';
 // --- Constants ---
 const ADMIN_COOKIE_NAME = 'admin-token';
 const GOOGLE_TOKEN_COOKIE = 'google_token';
-const JWT_SECRET = 'b7e8f9g2h3i4j5k6l7m8n9p0q1r2s3t4u5v6w7x8y9z0a1b2c3d4e5f6';
+const JWT_SECRET = (process.env.JWT_SECRET || (() => {
+  throw new Error('JWT_SECRET environment variable is required for production security');
+})()).trim();
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
-// Debug: Log JWT_SECRET info (temporary) - FIXED
-console.log('[middleware] JWT_SECRET length:', JWT_SECRET.length);
-console.log('[middleware] JWT_SECRET first 10 chars:', JWT_SECRET.substring(0, 10));
-console.log('[middleware] JWT_SECRET is hardcoded now!');
+// Production security: JWT_SECRET debug logs removed for security
 
 // --- Helper Functions ---
 async function verifyGoogleToken(tokenString: string): Promise<boolean> {

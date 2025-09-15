@@ -1,14 +1,10 @@
 import { NextResponse } from 'next/server';
 
+// 🚨 SECURITY NOTICE: This endpoint has been disabled for production security
+// The debug endpoint exposed sensitive environment variable values
 export async function GET() {
   return NextResponse.json({
-    hasJwtSecret: !!process.env.JWT_SECRET,
-    hasAdminPassword: !!process.env.ADMIN_PASSWORD,
-    hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
-    hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-    hasGoogleRedirectUri: !!process.env.GOOGLE_REDIRECT_URI,
-    googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || 'NOT_SET',
-    nodeEnv: process.env.NODE_ENV,
-    timestamp: new Date().toISOString()
-  });
+    success: false,
+    message: 'Debug endpoints have been permanently disabled for security reasons'
+  }, { status: 404 });
 }
