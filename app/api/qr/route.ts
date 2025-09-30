@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Return the image as a response
-    return new NextResponse(qrCodeBuffer, {
+    return new NextResponse(qrCodeBuffer as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
