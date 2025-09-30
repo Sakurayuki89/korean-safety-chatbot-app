@@ -7,7 +7,7 @@
     "dev:clean": "rm -rf .next && npm run clean-port && npm run dev",
     "dev:reset": "./scripts/dev-server-reset.sh",
     "dev:force": "rm -rf .next node_modules/.cache .swc && npm run clean-port && npm run dev",
-    "build": "next build",
+    "build": "rm -rf .next && next build",
     "start": "next start",
     "lint": "eslint",
     "clean-port": "lsof -ti:3000 | xargs -r kill -9 || echo 'Port 3000 is clean'",
