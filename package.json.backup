@@ -1,0 +1,49 @@
+{
+  "name": "korean-safety-chatbot-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:clean": "rm -rf .next && npm run clean-port && npm run dev",
+    "dev:reset": "./scripts/dev-server-reset.sh",
+    "dev:force": "rm -rf .next node_modules/.cache .swc && npm run clean-port && npm run dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "clean-port": "lsof -ti:3000 | xargs -r kill -9 || echo 'Port 3000 is clean'",
+    "check-port": "lsof -i:3000 || echo 'Port 3000 is available'",
+    "kill-dev": "pkill -f 'next-server' || pkill -f 'next dev' || echo 'No dev server running'",
+    "security-check": "node scripts/security-check.js",
+    "pre-deploy": "npm run security-check && npm run build"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "googleapis": "^134.0.0",
+    "jose": "^6.1.0",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.33",
+    "mongodb": "^6.19.0",
+    "next": "15.5.2",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^4.0.379",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-dropzone": "^14.2.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/js-cookie": "^3.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/xlsx": "^0.0.35",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

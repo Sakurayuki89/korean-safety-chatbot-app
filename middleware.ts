@@ -34,6 +34,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 🚧 Site blocking check - HIGHEST PRIORITY
+  const siteBlocked = process.env.NEXT_PUBLIC_SITE_BLOCKED === 'true';
+
+  // Allow environment check API even when blocked
+  if (pathname === '/api/check-env') {
+    return NextResponse.next();
+  }
+
+  // If site is blocked, redirect all routes to maintenance page
+  if (siteBlocked && pathname !== '/maintenance') {
+    return NextResponse.redirect(new URL('/maintenance', request.url));
+  }
+
   // Block debug and test routes in production
   if (process.env.NODE_ENV === 'production') {
     if (pathname.startsWith('/api/debug') ||
@@ -102,11 +115,12 @@ export async function middleware(request: NextRequest) {
 // --- Config ---
 export const config = {
   matcher: [
-    '/admin',
-    '/admin/:path*',
-    '/api/admin/:path*',
-    '/api/debug/:path*',
-    '/api/test-:path*',
-    '/debug-:path*'
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

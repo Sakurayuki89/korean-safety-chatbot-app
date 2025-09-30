@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import QRCode from 'qrcode';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -8,44 +9,29 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Text for QR code is required' }, { status: 400 });
   }
 
-  const clientId = process.env.NAVER_CLIENT_ID;
-  const clientSecret = process.env.NAVER_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    console.error('Naver API credentials are not set in environment variables.');
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-  }
-
-  const naverApiUrl = `https://openapi.naver.com/v1/util/qrcode?text=${encodeURIComponent(text)}`;
-
   try {
-    const response = await fetch(naverApiUrl, {
-      headers: {
-        'X-Naver-Client-Id': clientId,
-        'X-Naver-Client-Secret': clientSecret,
-      },
+    // Generate QR code as buffer
+    const qrCodeBuffer = await QRCode.toBuffer(text, {
+      type: 'png',
+      width: 256,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Naver API error:', errorData);
-      return NextResponse.json({ error: 'Failed to generate QR code', details: errorData }, { status: response.status });
-    }
-
-    // Naver API returns the image data directly
-    const imageBuffer = await response.arrayBuffer();
-
     // Return the image as a response
-    return new NextResponse(imageBuffer, {
+    return new NextResponse(qrCodeBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
       },
     });
 
   } catch (error) {
-    console.error('Error calling Naver API:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('Error generating QR code:', error);
+    return NextResponse.json({ error: 'Failed to generate QR code' }, { status: 500 });
   }
 }

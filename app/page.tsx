@@ -12,6 +12,24 @@ const SafetyItemRequest = dynamic(() => import('@/components/SafetyItemRequest')
 export default function HomePage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
+  // 사이트 접속 차단 체크
+  if (process.env.NEXT_PUBLIC_SITE_BLOCKED === 'true') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-center text-white">
+          <h1 className="text-4xl font-bold mb-4">🚧 시스템 점검 중</h1>
+          <p className="text-lg mb-8">
+            현재 시스템 점검을 진행하고 있습니다.<br />
+            잠시 후 다시 접속해 주세요.
+          </p>
+          <div className="text-sm text-gray-400">
+            불편을 드려 죄송합니다.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
