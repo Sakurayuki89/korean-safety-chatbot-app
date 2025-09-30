@@ -12,8 +12,10 @@ const SafetyItemRequest = dynamic(() => import('@/components/SafetyItemRequest')
 export default function HomePage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  // 사이트 접속 차단 체크
-  if (process.env.NEXT_PUBLIC_SITE_BLOCKED === 'true') {
+  // 🚧 긴급 사이트 차단 - 즉시 적용
+  const SITE_BLOCKED = true; // 차단 해제하려면 false로 변경
+
+  if (SITE_BLOCKED) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-center text-white">
