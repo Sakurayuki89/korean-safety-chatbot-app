@@ -27,6 +27,9 @@ export default function HomePage() {
           <div className="text-sm text-gray-400">
             불편을 드려 죄송합니다.
           </div>
+          <div className="text-xs text-gray-500 mt-4">
+            {new Date().toLocaleString('ko-KR')} 업데이트
+          </div>
         </div>
       </div>
     );
